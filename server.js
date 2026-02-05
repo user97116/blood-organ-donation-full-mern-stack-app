@@ -28,6 +28,7 @@ setTimeout(() => {
 // Routes
 app.use('/api', require('./routes/auth'));
 app.use('/api/hospitals', require('./routes/hospitals'));
+app.use('/api/organ-donations', require('./routes/organ_donations'));
 
 // Users management (admin)
 app.get('/api/users', (req, res) => {
@@ -97,27 +98,6 @@ app.get('/api/blood-requests', (req, res) => {
   });
 });
 
-// Organ donations
-app.get('/api/organ-donations', (req, res) => {
-  db.all(`SELECT od.*, u.name as donor_name, h.name as hospital_name 
-          FROM organ_donations od 
-          LEFT JOIN users u ON od.donor_id = u.id 
-          LEFT JOIN hospitals h ON od.hospital_id = h.id 
-          ORDER BY od.created_at DESC`, (err, rows) => {
-    if (err) return res.status(400).json({ error: err.message });
-    res.json(rows);
-  });
-});
-
-app.post('/api/organ-donations', (req, res) => {
-  const { organ_type, hospital_id, notes } = req.body;
-  db.run('INSERT INTO organ_donations (donor_id, hospital_id, organ_type, notes) VALUES (?, ?, ?, ?)',
-    [1, hospital_id, organ_type, notes], function(err) {
-      if (err) return res.status(400).json({ error: err.message });
-      res.json({ message: 'Organ donation recorded successfully', id: this.lastID });
-    });
-});
-
 // Organ requests
 app.get('/api/organ-requests', (req, res) => {
   db.all(`SELECT orr.*, u.name as requester_name, h.name as hospital_name 
@@ -173,25 +153,6 @@ app.delete('/api/blood-requests/:id', (req, res) => {
   db.run('DELETE FROM blood_requests WHERE id = ?', [req.params.id], function(err) {
     if (err) return res.status(400).json({ error: err.message });
     res.json({ message: 'Blood request deleted successfully' });
-  });
-});
-
-// Admin actions for organ donations
-app.put('/api/organ-donations/:id', (req, res) => {
-  const { status, donation_date } = req.body;
-  const updateDate = status === 'completed' ? new Date().toISOString().split('T')[0] : null;
-  
-  db.run('UPDATE organ_donations SET status = ?, donation_date = ? WHERE id = ?', 
-    [status, donation_date || updateDate, req.params.id], function(err) {
-      if (err) return res.status(400).json({ error: err.message });
-      res.json({ message: 'Organ donation updated successfully' });
-    });
-});
-
-app.delete('/api/organ-donations/:id', (req, res) => {
-  db.run('DELETE FROM organ_donations WHERE id = ?', [req.params.id], function(err) {
-    if (err) return res.status(400).json({ error: err.message });
-    res.json({ message: 'Organ donation deleted successfully' });
   });
 });
 

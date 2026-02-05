@@ -864,6 +864,71 @@ body {
   color: #666;
 }
 
+/* Precautions Section */
+.precautions-section {
+  padding: 3rem 2rem;
+  background-color: #fff;
+  margin: 2rem 0;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+}
+
+.precautions-section h2 {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  color: #333;
+  font-size: 2rem;
+}
+
+.precautions-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.precaution-card {
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.precaution-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.precaution-card h3 {
+  font-size: 1.5rem;
+  color: #dc3545;
+  margin-bottom: 1.5rem;
+}
+
+.precaution-card ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.precaution-card li {
+  margin-bottom: 1rem;
+  padding-left: 2rem;
+  position: relative;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.precaution-card li::before {
+  content: '✔';
+  color: #28a745;
+  position: absolute;
+  left: 0;
+  font-size: 1.2rem;
+}
+
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .navbar {

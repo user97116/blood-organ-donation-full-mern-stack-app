@@ -105,6 +105,7 @@ const initializeDatabase = () => {
       donor_id INTEGER,
       hospital_id INTEGER,
       organ_type TEXT NOT NULL,
+      health_condition TEXT,
       status TEXT DEFAULT 'pending',
       donation_date DATE,
       notes TEXT,

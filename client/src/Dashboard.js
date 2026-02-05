@@ -588,10 +588,30 @@ function DonateOrgan({ hospitals, onSuccess }) {
   const [formData, setFormData] = useState({
     organ_type: 'Kidney',
     hospital_id: '',
-    notes: ''
+    notes: '',
+    health_condition: ''
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+
+  const organDiseases = {
+    Kidney: ['Kidney Stones', 'Chronic Kidney Disease', 'Polycystic Kidney Disease'],
+    Liver: ['Hepatitis', 'Cirrhosis', 'Liver Cancer'],
+    Heart: ['Coronary Artery Disease', 'Heart Failure', 'Arrhythmia'],
+    Lungs: ['Asthma', 'Chronic Obstructive Pulmonary Disease (COPD)', 'Pneumonia'],
+    Cornea: ['Keratoconus', 'Fuchs Dystrophy', 'Corneal Ulcer'],
+    Skin: ['Eczema', 'Psoriasis', 'Skin Cancer'],
+    Bone: ['Osteoporosis', 'Arthritis', 'Bone Cancer'],
+    Pancreas: ['Pancreatitis', 'Diabetes', 'Pancreatic Cancer']
+  };
+
+  const handleOrganChange = (e) => {
+    setFormData({
+     ...formData,
+      organ_type: e.target.value,
+      health_condition: ''
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -601,7 +621,7 @@ function DonateOrgan({ hospitals, onSuccess }) {
     try {
       await axios.post(`${API_URL}/organ-donations`, formData);
       setMessage('Organ donation registered successfully!');
-      setFormData({ organ_type: 'Kidney', hospital_id: '', notes: '' });
+      setFormData({ organ_type: 'Kidney', hospital_id: '', notes: '', health_condition: '' });
       onSuccess();
     } catch (error) {
       setMessage(error.response?.data?.error || 'Error registering organ donation');
@@ -620,7 +640,7 @@ function DonateOrgan({ hospitals, onSuccess }) {
           <label>Organ Type</label>
           <select
             value={formData.organ_type}
-            onChange={(e) => setFormData({...formData, organ_type: e.target.value})}
+            onChange={handleOrganChange}
             required
           >
             <option value="Kidney">Kidney</option>
@@ -631,6 +651,19 @@ function DonateOrgan({ hospitals, onSuccess }) {
             <option value="Skin">Skin</option>
             <option value="Bone">Bone</option>
             <option value="Pancreas">Pancreas</option>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label>Health Condition (if applicable)</label>
+          <select
+            value={formData.health_condition}
+            onChange={(e) => setFormData({...formData, health_condition: e.target.value})}
+          >
+            <option value="">Select a condition</option>
+            {organDiseases[formData.organ_type] && organDiseases[formData.organ_type].map(disease => (
+              <option key={disease} value={disease}>{disease}</option>
+            ))}
           </select>
         </div>
 

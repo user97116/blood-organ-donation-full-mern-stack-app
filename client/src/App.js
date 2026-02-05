@@ -259,6 +259,29 @@ function Home() {
           <button onClick={handleActionClick} className="request-btn">Request Organ</button>
         </div>
       </div>
+      <div className="precautions-section">
+        <h2>Donation Precautions</h2>
+        <div className="precautions-content">
+          <div className="precaution-card">
+            <h3>Blood Donation</h3>
+            <ul>
+              <li>Eat a healthy meal and drink plenty of fluids.</li>
+              <li>Get a good night's sleep.</li>
+              <li>Bring a photo ID.</li>
+              <li>Avoid heavy lifting or vigorous exercise for the rest of the day.</li>
+            </ul>
+          </div>
+          <div className="precaution-card">
+            <h3>Organ Donation</h3>
+            <ul>
+              <li>Discuss your decision with your family.</li>
+              <li>Register as an organ donor.</li>
+              <li>Maintain a healthy lifestyle.</li>
+              <li>Your health is a priority; donation only happens after all life-saving efforts have been exhausted.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

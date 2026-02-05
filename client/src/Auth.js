@@ -59,10 +59,6 @@ function Login({ setUser }) {
           </button>
         </form>
         
-        <div className="demo-credentials">
-          <p><strong>Demo Credentials:</strong></p>
-          <p>Admin: admin@bloodbank.com / admin123</p>
-        </div>
       </div>
     </div>
   );
