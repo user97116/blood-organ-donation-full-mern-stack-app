@@ -1,6 +1,38 @@
 # Blood & Organ Donation Management System
 
-A comprehensive MERN stack application for managing blood and organ donations with SQLite database, featuring admin panel, hospital management, and donor tracking.
+A comprehensive MERN stack application for managing blood and organ donations with SQLite database, featuring admin panel, hospital management, and donor tracking. **Primary focus on Organ Donation with comprehensive SOP compliance.**
+
+## 🫀 Key Features - Organ Donation System
+
+### Focused Organ Donation (3 Primary Organs)
+- **Heart Donation** - Deceased donor program only (brain death required)
+- **Kidney Donation** - Living and deceased donor programs
+- **Eye (Cornea) Donation** - Deceased donor program (all ages, within 6-8 hours)
+
+### Standard Operating Procedures (SOP)
+- **Organ-Specific SOP Documentation** - Complete guidelines for each organ:
+  - `SOP_HEART_DONATION.md` - Brain death certification, cardiac evaluation, retrieval procedure
+  - `SOP_KIDNEY_DONATION.md` - Living/deceased donation, 3-phase evaluation, surgical procedure
+  - `SOP_EYE_DONATION.md` - Cornea retrieval, preservation, transplant procedure
+- **Mandatory SOP Acceptance** - Donors must read and accept organ-specific SOP before registration
+- **Eligibility Criteria** - Age, health, and medical requirements for each organ
+- **Risk Disclosure** - Complete information about surgical risks and recovery
+- **Post-Donation Care** - Lifelong follow-up protocols (for living donors)
+
+### Medical Information Collection
+- **Disease History** - Comprehensive medical condition tracking
+- **Allergy Information** - Drug and food allergy documentation
+- **Blood Pressure Monitoring** - Current BP status
+- **Diabetes Screening** - Type 1, Type 2, and pre-diabetic status
+- **Current Medications** - Complete medication list
+- **Previous Surgeries** - Surgical history tracking
+- **Emergency Contacts** - Designated emergency contact persons
+
+### Online Forms & Templates
+- **Digital Registration Form** - Complete organ donation registration
+- **Printable Consent Form** - Official consent document template
+- **Medical Evaluation Forms** - Pre-donation assessment forms
+- **SOP Acknowledgment** - Digital consent tracking
 
 ## 🩸 Features
 

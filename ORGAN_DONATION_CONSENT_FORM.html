@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organ Donation Consent Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #dc3545;
+        }
+        .section {
+            margin-bottom: 25px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+        }
+        .field {
+            margin-bottom: 15px;
+        }
+        .field label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .field-value {
+            border-bottom: 1px solid #333;
+            min-height: 25px;
+            padding: 5px 0;
+        }
+        .checkbox-group {
+            margin: 10px 0;
+        }
+        .checkbox-item {
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-item input {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+        }
+        .signature-section {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        .signature-box {
+            border: 1px solid #333;
+            padding: 15px;
+            min-height: 100px;
+        }
+        .signature-box p {
+            margin: 5px 0;
+        }
+        .important-notice {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .print-button {
+            background: #28a745;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px 0;
+        }
+        @media print {
+            .print-button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="print-button" onclick="window.print()">Print Form</button>
+
+    <div class="header">
+        <h1>ORGAN DONATION CONSENT FORM</h1>
+        <p>Blood & Organ Donation Management System</p>
+        <p>Form No: _____________ Date: _______________</p>
+    </div>
+
+    <div class="important-notice">
+        <strong>IMPORTANT:</strong> This form must be filled completely and signed in the presence of a medical officer and witness. Please read the Standard Operating Procedures (SOP) document before filling this form.
+    </div>
+
+    <!-- Personal Information -->
+    <div class="section">
+        <h2>1. DONOR PERSONAL INFORMATION</h2>
+        
+        <div class="field">
+            <label>Full Name:</label>
+            <div class="field-value"></div>
+        </div>
+
+        <div class="field">
+            <label>Date of Birth:</label>
+            <div class="field-value"></div>
+        </div>
+
+        <div class="field">
+            <label>Age:</label>
+            <div class="field-value"></div>
+        </div>
+
+        <div class="field">
+            <label>Gender:</label>
+            <div class="field-value"></div>
+        </div>
+
+        <div class="field">
+            <label>Blood Type:</label>
+            <div class="field-value"></div>
+        </div>
+
+        <div class="field">
+            <label>Contact Number:</label>
+            <div class="field-value"></div>
+        </div>
+
+        <div class="field">
+            <label>Email Address:</label>
+            <div class="field-value"></div>
+        </div>
+
+        <div class="field">
+            <label>Residential Address:</label>
+            <div class="field-value"></div>
+            <div class="field-value"></div>
+        </div>
+    </div>
+
+    <!-- Organ Selection -->
+    <div class="section">
+        <h2>2. ORGAN DONATION DETAILS</h2>
+        
+        <div class="checkbox-group">
+            <label><strong>Select Organ(s) for Donation:</strong></label>
+            <div class="checkbox-item">
+                <input type="checkbox" id="kidney"> <label for="kidney">Kidney</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="liver"> <label for="liver">Liver</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="heart"> <label for="heart">Heart (Deceased Donation Only)</label>
+            </div>
+        </div>
+
+        <div class="field">
+            <label>Preferred Hospital:</label>
+            <div class="field-value"></div>
+        </div>
+
+        <div class="field">
+            <label>Hospital License Number:</label>
+            <div class="field-value"></div>
+        </div>
+    </div>
+
+    <!-- Medical Information -->
+    <div class="section">
+        <h2>3. MEDICAL INFORMATION</h2>
+        
+        <div class="field">
+            <label>Existing Diseases/Medical Conditions:</label>
+            <div class="field-value"></div>
+            <div class="field-value"></div>
+        </div>
+
+        <div class="field">
+            <label>Known Allergies (Drugs/Food):</label>
+            <div class="field-value"></div>
+            <div class="field-value"></div>
+        </div>
+
+        <div class="field">
+            <label>Blood Pressure:</label>
+            <div class="field-value"></div>
+        </div>
+
+        <div class="checkbox-group">
+            <label><strong>Diabetes Status:</strong></label>
+            <div class="checkbox-item">
+                <input type="checkbox" id="no-diabetes"> <label for="no-diabetes">No Diabetes</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="type1"> <label for="type1">Type 1 Diabetes</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="type2"> <label for="type2">Type 2 Diabetes</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" id="prediabetic"> <label for="prediabetic">Pre-diabetic</label>
+            </div>
+        </div>
+
+        <div class="field">
+            <label>Current Medications:</label>
+            <div class="field-value"></div>
+            <div class="field-value"></div>
+        </div>
+
+        <div class="field">
+            <label>Previous Surgeries:</label>
+            <div class="field-value"></div>
+            <div class="field-value"></div>
+        </div>
+
+        <div class="field">
+            <label>Family Medical History (Genetic Conditions):</label>
+            <div class="field-value"></div>
+            <div class="field-value"></div>
+        </div>
+    </div>
+
+    <!-- Emergency Contact -->
+    <div class="section">
+        <h2>4. EMERGENCY CONTACT INFORMATION</h2>
+        
+        <div class="field">
+            <label>Emergency Contact Name:</label>
+            <div class="field-value"></div>
+        </div>
+
+        <div class="field">
+            <label>Relationship:</label>
+            <div class="field-value"></div>
+        </div>
+
+        <div class="field">
+            <label>Emergency Contact Phone:</label>
+            <div class="field-value"></div>
+        </div>
+
+        <div class="field">
+            <label>Emergency Contact Address:</label>
+            <div class="field-value"></div>
+        </div>
+    </div>
+
+    <!-- Consent Declaration -->
+    <div class="section">
+        <h2>5. CONSENT DECLARATION</h2>
+        
+        <p>I hereby declare that:</p>
+        
+        <div class="checkbox-item">
+            <input type="checkbox" id="consent1">
+            <label for="consent1">I have read and fully understood the Standard Operating Procedures (SOP) for organ donation.</label>
+        </div>
+
+        <div class="checkbox-item">
+            <input type="checkbox" id="consent2">
+            <label for="consent2">I am donating my organ(s) voluntarily without any coercion, pressure, or financial incentive.</label>
+        </div>
+
+        <div class="checkbox-item">
+            <input type="checkbox" id="consent3">
+            <label for="consent3">I understand the medical risks, surgical procedures, and potential complications involved.</label>
+        </div>
+
+        <div class="checkbox-item">
+            <input type="checkbox" id="consent4">
+            <label for="consent4">I understand the recovery period and commit to post-donation care and follow-up.</label>
+        </div>
+
+        <div class="checkbox-item">
+            <input type="checkbox" id="consent5">
+            <label for="consent5">I have had the opportunity to ask questions and all my queries have been answered satisfactorily.</label>
+        </div>
+
+        <div class="checkbox-item">
+            <input type="checkbox" id="consent6">
+            <label for="consent6">I understand that I have the right to withdraw my consent at any time before the surgery.</label>
+        </div>
+
+        <div class="checkbox-item">
+            <input type="checkbox" id="consent7">
+            <label for="consent7">I authorize the medical team to perform necessary medical evaluations and tests.</label>
+        </div>
+
+        <div class="checkbox-item">
+            <input type="checkbox" id="consent8">
+            <label for="consent8">I understand that my personal and medical information will be kept confidential.</label>
+        </div>
+
+        <div class="checkbox-item">
+            <input type="checkbox" id="consent9">
+            <label for="consent9">All information provided by me in this form is true and accurate to the best of my knowledge.</label>
+        </div>
+    </div>
+
+    <!-- Signatures -->
+    <div class="section">
+        <h2>6. SIGNATURES</h2>
+        
+        <div class="signature-section">
+            <div class="signature-box">
+                <p><strong>Donor's Signature:</strong></p>
+                <br><br>
+                <p>_________________________</p>
+                <p>Name: ___________________</p>
+                <p>Date: ____________________</p>
+            </div>
+
+            <div class="signature-box">
+                <p><strong>Witness Signature:</strong></p>
+                <br><br>
+                <p>_________________________</p>
+                <p>Name: ___________________</p>
+                <p>Date: ____________________</p>
+            </div>
+        </div>
+
+        <div class="signature-section" style="margin-top: 20px;">
+            <div class="signature-box">
+                <p><strong>Medical Officer:</strong></p>
+                <br><br>
+                <p>_________________________</p>
+                <p>Name: ___________________</p>
+                <p>License No: ______________</p>
+                <p>Date: ____________________</p>
+                <p>Hospital Stamp:</p>
+            </div>
+
+            <div class="signature-box">
+                <p><strong>Transplant Coordinator:</strong></p>
+                <br><br>
+                <p>_________________________</p>
+                <p>Name: ___________________</p>
+                <p>Contact: _________________</p>
+                <p>Date: ____________________</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="section">
+        <h2>FOR OFFICE USE ONLY</h2>
+        
+        <div class="field">
+            <label>Registration Number:</label>
+            <div class="field-value"></div>
+        </div>
+
+        <div class="field">
+            <label>Medical Evaluation Status:</label>
+            <div class="field-value"></div>
+        </div>
+
+        <div class="field">
+            <label>Approval Status:</label>
+            <div class="field-value"></div>
+        </div>
+
+        <div class="field">
+            <label>Scheduled Surgery Date:</label>
+            <div class="field-value"></div>
+        </div>
+
+        <div class="field">
+            <label>Remarks:</label>
+            <div class="field-value"></div>
+            <div class="field-value"></div>
+        </div>
+    </div>
+
+    <div class="important-notice">
+        <strong>IMPORTANT CONTACTS:</strong><br>
+        Emergency Helpline: _______________<br>
+        Transplant Coordinator: _______________<br>
+        Hospital Contact: _______________
+    </div>
+
+    <button class="print-button" onclick="window.print()">Print Form</button>
+</body>
+</html>

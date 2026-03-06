@@ -586,42 +586,57 @@ function History({ donations, requests, organDonations, organRequests, user }) {
 
 function DonateOrgan({ hospitals, onSuccess }) {
   const [formData, setFormData] = useState({
-    organ_type: 'Kidney',
+    organ_type: '',
     hospital_id: '',
-    notes: '',
-    health_condition: ''
+    medical_diseases: '',
+    allergies: '',
+    blood_pressure: '',
+    diabetes: 'no',
+    current_medications: '',
+    previous_surgeries: '',
+    emergency_contact_name: '',
+    emergency_contact_phone: '',
+    consent_sop_accepted: false,
+    notes: ''
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-
-  const organDiseases = {
-    Kidney: ['Kidney Stones', 'Chronic Kidney Disease', 'Polycystic Kidney Disease'],
-    Liver: ['Hepatitis', 'Cirrhosis', 'Liver Cancer'],
-    Heart: ['Coronary Artery Disease', 'Heart Failure', 'Arrhythmia'],
-    Lungs: ['Asthma', 'Chronic Obstructive Pulmonary Disease (COPD)', 'Pneumonia'],
-    Cornea: ['Keratoconus', 'Fuchs Dystrophy', 'Corneal Ulcer'],
-    Skin: ['Eczema', 'Psoriasis', 'Skin Cancer'],
-    Bone: ['Osteoporosis', 'Arthritis', 'Bone Cancer'],
-    Pancreas: ['Pancreatitis', 'Diabetes', 'Pancreatic Cancer']
-  };
-
-  const handleOrganChange = (e) => {
-    setFormData({
-     ...formData,
-      organ_type: e.target.value,
-      health_condition: ''
-    });
-  };
+  const [showSOP, setShowSOP] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!formData.consent_sop_accepted) {
+      setMessage('You must read and accept the SOP to proceed');
+      return;
+    }
+
     setLoading(true);
     setMessage('');
 
     try {
-      await axios.post(`${API_URL}/organ-donations`, formData);
+      const token = localStorage.getItem('token');
+      await axios.post(`${API_URL}/organ-donations`, {
+        ...formData,
+        consent_sop_accepted: formData.consent_sop_accepted ? 1 : 0
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setMessage('Organ donation registered successfully!');
-      setFormData({ organ_type: 'Kidney', hospital_id: '', notes: '', health_condition: '' });
+      setFormData({
+        organ_type: '',
+        hospital_id: '',
+        medical_diseases: '',
+        allergies: '',
+        blood_pressure: '',
+        diabetes: 'no',
+        current_medications: '',
+        previous_surgeries: '',
+        emergency_contact_name: '',
+        emergency_contact_phone: '',
+        consent_sop_accepted: false,
+        notes: ''
+      });
       onSuccess();
     } catch (error) {
       setMessage(error.response?.data?.error || 'Error registering organ donation');
@@ -630,71 +645,247 @@ function DonateOrgan({ hospitals, onSuccess }) {
     }
   };
 
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
   return (
     <div className="donate-section">
-      <h2>Register Organ Donation</h2>
+      <h2>Organ Donation Registration Form</h2>
       {message && <div className={message.includes('success') ? 'success-message' : 'error-message'}>{message}</div>}
       
       <form onSubmit={handleSubmit} className="donation-form">
-        <div className="form-group">
-          <label>Organ Type</label>
-          <select
-            value={formData.organ_type}
-            onChange={handleOrganChange}
-            required
-          >
-            <option value="Kidney">Kidney</option>
-            <option value="Liver">Liver</option>
-            <option value="Heart">Heart</option>
-            <option value="Lungs">Lungs</option>
-            <option value="Cornea">Cornea</option>
-            <option value="Skin">Skin</option>
-            <option value="Bone">Bone</option>
-            <option value="Pancreas">Pancreas</option>
-          </select>
+        {/* Organ Selection */}
+        <div className="form-section">
+          <h3>Organ Selection</h3>
+          <div className="form-group">
+            <label>Select Organ *</label>
+            <select name="organ_type" value={formData.organ_type} onChange={handleChange} required>
+              <option value="">Choose organ...</option>
+              <option value="Heart">Heart (Deceased Donation Only)</option>
+              <option value="Kidney">Kidney</option>
+              <option value="Eye">Eye (Cornea)</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Hospital *</label>
+            <select name="hospital_id" value={formData.hospital_id} onChange={handleChange} required>
+              <option value="">Select hospital...</option>
+              {hospitals.map(h => (
+                <option key={h.id} value={h.id}>{h.name}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        <div className="form-group">
-          <label>Health Condition (if applicable)</label>
-          <select
-            value={formData.health_condition}
-            onChange={(e) => setFormData({...formData, health_condition: e.target.value})}
-          >
-            <option value="">Select a condition</option>
-            {organDiseases[formData.organ_type] && organDiseases[formData.organ_type].map(disease => (
-              <option key={disease} value={disease}>{disease}</option>
-            ))}
-          </select>
+        {/* Medical Information */}
+        <div className="form-section">
+          <h3>Medical Information</h3>
+          
+          <div className="form-group">
+            <label>Existing Diseases/Medical Conditions *</label>
+            <textarea 
+              name="medical_diseases" 
+              value={formData.medical_diseases} 
+              onChange={handleChange}
+              placeholder="List any chronic diseases, heart conditions, kidney problems, etc."
+              rows="3"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Allergies *</label>
+            <textarea 
+              name="allergies" 
+              value={formData.allergies} 
+              onChange={handleChange}
+              placeholder="List any drug allergies, food allergies, or write 'None'"
+              rows="2"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Blood Pressure *</label>
+            <input 
+              type="text" 
+              name="blood_pressure" 
+              value={formData.blood_pressure} 
+              onChange={handleChange}
+              placeholder="e.g., 120/80 mmHg or Normal"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Diabetes Status *</label>
+            <select name="diabetes" value={formData.diabetes} onChange={handleChange} required>
+              <option value="no">No</option>
+              <option value="type1">Type 1 Diabetes</option>
+              <option value="type2">Type 2 Diabetes</option>
+              <option value="prediabetic">Pre-diabetic</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Current Medications</label>
+            <textarea 
+              name="current_medications" 
+              value={formData.current_medications} 
+              onChange={handleChange}
+              placeholder="List all medications you are currently taking"
+              rows="3"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Previous Surgeries</label>
+            <textarea 
+              name="previous_surgeries" 
+              value={formData.previous_surgeries} 
+              onChange={handleChange}
+              placeholder="List any previous surgeries with approximate dates"
+              rows="2"
+            />
+          </div>
         </div>
 
-        <div className="form-group">
-          <label>Hospital</label>
-          <select
-            value={formData.hospital_id}
-            onChange={(e) => setFormData({...formData, hospital_id: e.target.value})}
-            required
-          >
-            <option value="">Select Hospital</option>
-            {hospitals.map(hospital => (
-              <option key={hospital.id} value={hospital.id}>
-                {hospital.name}
-              </option>
-            ))}
-          </select>
+        {/* Emergency Contact */}
+        <div className="form-section">
+          <h3>Emergency Contact</h3>
+          
+          <div className="form-group">
+            <label>Emergency Contact Name *</label>
+            <input 
+              type="text" 
+              name="emergency_contact_name" 
+              value={formData.emergency_contact_name} 
+              onChange={handleChange}
+              placeholder="Full name"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Emergency Contact Phone *</label>
+            <input 
+              type="tel" 
+              name="emergency_contact_phone" 
+              value={formData.emergency_contact_phone} 
+              onChange={handleChange}
+              placeholder="10-digit phone number"
+              required
+            />
+          </div>
         </div>
 
+        {/* Additional Notes */}
         <div className="form-group">
-          <label>Notes (optional)</label>
-          <textarea
-            value={formData.notes}
-            onChange={(e) => setFormData({...formData, notes: e.target.value})}
+          <label>Additional Notes</label>
+          <textarea 
+            name="notes" 
+            value={formData.notes} 
+            onChange={handleChange}
+            placeholder="Any other information you'd like to share"
             rows="3"
-            placeholder="Any additional information about the organ donation..."
           />
         </div>
 
+        {/* SOP Consent */}
+        <div className="form-section sop-section">
+          <h3>Standard Operating Procedures (SOP)</h3>
+          <button 
+            type="button" 
+            className="btn-secondary"
+            onClick={() => setShowSOP(!showSOP)}
+          >
+            {showSOP ? 'Hide SOP' : 'Read SOP (Required)'}
+          </button>
+
+          {showSOP && (
+            <div className="sop-content">
+              <h4>Key Points from SOP:</h4>
+              
+              {formData.organ_type === 'Heart' && (
+                <div>
+                  <h5>Heart Donation (Deceased Only)</h5>
+                  <ul>
+                    <li><strong>Eligibility:</strong> Brain death certification required, age 18-55 years</li>
+                    <li><strong>Evaluation:</strong> Echocardiogram, ECG, cardiac enzymes, tissue typing</li>
+                    <li><strong>Procedure:</strong> Multi-organ retrieval surgery, cold preservation</li>
+                    <li><strong>Time Critical:</strong> Must transplant within 4-6 hours</li>
+                    <li><strong>Family Consent:</strong> Required after brain death declaration</li>
+                    <li><strong>Success Rate:</strong> 90% one-year survival</li>
+                  </ul>
+                  <p><a href="https://github.com/yourusername/blood-organ-donation/blob/main/SOP_HEART_DONATION.md" target="_blank" rel="noopener noreferrer">Read Full Heart Donation SOP</a></p>
+                </div>
+              )}
+              
+              {formData.organ_type === 'Kidney' && (
+                <div>
+                  <h5>Kidney Donation (Living & Deceased)</h5>
+                  <ul>
+                    <li><strong>Eligibility:</strong> Age 18-65, BMI &lt;35, two healthy kidneys, GFR &gt;80</li>
+                    <li><strong>Evaluation:</strong> 3-phase screening (medical, imaging, psychological)</li>
+                    <li><strong>Surgery:</strong> Laparoscopic nephrectomy, 2-3 hours, 2-3 day hospital stay</li>
+                    <li><strong>Recovery:</strong> 4-6 weeks, return to normal activities</li>
+                    <li><strong>Risks:</strong> Bleeding (1-2%), infection (1-2%), long-term hypertension (5-10%)</li>
+                    <li><strong>Follow-up:</strong> Lifelong annual check-ups required</li>
+                  </ul>
+                  <p><a href="https://github.com/yourusername/blood-organ-donation/blob/main/SOP_KIDNEY_DONATION.md" target="_blank" rel="noopener noreferrer">Read Full Kidney Donation SOP</a></p>
+                </div>
+              )}
+              
+              {formData.organ_type === 'Eye' && (
+                <div>
+                  <h5>Eye (Cornea) Donation (Deceased Only)</h5>
+                  <ul>
+                    <li><strong>Eligibility:</strong> All ages (1-75 years), within 6-8 hours after death</li>
+                    <li><strong>Procedure:</strong> Eye retrieval (30-40 minutes), prosthetic eyes placed</li>
+                    <li><strong>Preservation:</strong> Up to 14 days in preservation medium</li>
+                    <li><strong>Transplant:</strong> Corneal transplant restores vision, 80-90% success rate</li>
+                    <li><strong>Funeral:</strong> Open casket possible, no visible difference</li>
+                    <li><strong>Impact:</strong> One donor can help 2 people (both corneas)</li>
+                  </ul>
+                  <p><a href="https://github.com/yourusername/blood-organ-donation/blob/main/SOP_EYE_DONATION.md" target="_blank" rel="noopener noreferrer">Read Full Eye Donation SOP</a></p>
+                </div>
+              )}
+              
+              {!formData.organ_type && (
+                <div>
+                  <p><strong>Please select an organ type above to view specific SOP information.</strong></p>
+                  <ul>
+                    <li><a href="https://github.com/yourusername/blood-organ-donation/blob/main/SOP_HEART_DONATION.md" target="_blank" rel="noopener noreferrer">Heart Donation SOP</a></li>
+                    <li><a href="https://github.com/yourusername/blood-organ-donation/blob/main/SOP_KIDNEY_DONATION.md" target="_blank" rel="noopener noreferrer">Kidney Donation SOP</a></li>
+                    <li><a href="https://github.com/yourusername/blood-organ-donation/blob/main/SOP_EYE_DONATION.md" target="_blank" rel="noopener noreferrer">Eye Donation SOP</a></li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="checkbox-group">
+            <label className="checkbox-label">
+              <input 
+                type="checkbox" 
+                name="consent_sop_accepted" 
+                checked={formData.consent_sop_accepted} 
+                onChange={handleChange}
+                required
+              />
+              <span>I have read and understood the Standard Operating Procedures (SOP) for organ donation. I voluntarily consent to donate and understand all risks, benefits, and post-donation care requirements. *</span>
+            </label>
+          </div>
+        </div>
+
         <button type="submit" disabled={loading} className="submit-btn">
-          {loading ? 'Registering...' : 'Register Organ Donation'}
+          {loading ? 'Submitting...' : 'Submit Registration'}
         </button>
       </form>
     </div>

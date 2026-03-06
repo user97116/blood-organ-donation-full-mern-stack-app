@@ -1,0 +1,21 @@
+
+> blood-organ-donation@1.0.0 dev
+> nodemon server.js
+
+[33m[nodemon] 3.1.11[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: js,mjs,cjs,json[39m
+[32m[nodemon] starting `node server.js`[39m
+🚀 Server running on port 5000
+📊 Database initialized with dummy data
+🔄 Inserting dummy data...
+✅ Comprehensive dummy data inserted successfully
+📊 Data includes: 8 hospitals, 21 users, 10 doctors, 15 blood donations, 10 blood requests, 24 inventory items, 8 organ donations, 8 organ requests
+[32m[nodemon] restarting child process[39m
+[32m[nodemon] starting `node server.js`[39m
+🚀 Server running on port 5000
+📊 Database initialized with dummy data
+🔄 Inserting dummy data...
+✅ Comprehensive dummy data inserted successfully
+📊 Data includes: 8 hospitals, 21 users, 10 doctors, 15 blood donations, 10 blood requests, 24 inventory items, 8 organ donations, 8 organ requests

@@ -85,13 +85,7 @@ function Navbar({ user, logout }) {
 
 function Home() {
   const [inventory, setInventory] = useState([]);
-  const [donors, setDonors] = useState([]);
   const [organInventory, setOrganInventory] = useState([]);
-  const [filters, setFilters] = useState({
-    bloodType: '',
-    organType: '',
-    location: ''
-  });
 
   useEffect(() => {
     fetchPublicData();
@@ -99,40 +93,24 @@ function Home() {
 
   const fetchPublicData = async () => {
     try {
-      const [inventoryRes, donorsRes, organInventoryRes] = await Promise.all([
+      const [inventoryRes, organInventoryRes] = await Promise.all([
         axios.get(`${API_URL}/blood-inventory`),
-        axios.get(`${API_URL}/donors`),
         axios.get(`${API_URL}/organ-inventory`)
       ]);
       
       setInventory(inventoryRes.data);
-      setDonors(donorsRes.data);
       setOrganInventory(organInventoryRes.data);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
 
-  const filteredDonors = donors.filter(donor => {
-    const matchesBloodType = !filters.bloodType || donor.blood_type === filters.bloodType;
-    const matchesLocation = !filters.location || donor.address.includes(filters.location);
-    
-    let matchesOrganType = true;
-    if (filters.organType) {
-      if (donor.organ_donor && donor.organs_to_donate) {
-        try {
-          const organs = JSON.parse(donor.organs_to_donate);
-          matchesOrganType = organs.includes(filters.organType);
-        } catch (e) {
-          matchesOrganType = false;
-        }
-      } else {
-        matchesOrganType = false;
-      }
-    }
-    
-    return matchesBloodType && matchesLocation && matchesOrganType;
-  });
+  const getOrganCount = (organType) => {
+    return organInventory.filter(o => 
+      o.organ_type === organType && 
+      (o.status === 'pending' || o.status === 'eligible')
+    ).length;
+  };
 
   const handleActionClick = () => {
     window.location.href = '/login';
@@ -144,84 +122,6 @@ function Home() {
         <h1>Save Lives Through Blood & Organ Donation</h1>
         <p>Join our community of life-savers. Every donation counts.</p>
         <Link to="/register" className="cta-button">Become a Donor</Link>
-      </div>
-
-      <div className="search-section">
-        <h2>Find Donors</h2>
-        <div className="search-filters">
-          <select 
-            value={filters.bloodType} 
-            onChange={(e) => setFilters({...filters, bloodType: e.target.value})}
-          >
-            <option value="">All Blood Types</option>
-            <option value="A+">A+</option>
-            <option value="A-">A-</option>
-            <option value="B+">B+</option>
-            <option value="B-">B-</option>
-            <option value="AB+">AB+</option>
-            <option value="AB-">AB-</option>
-            <option value="O+">O+</option>
-            <option value="O-">O-</option>
-          </select>
-          
-          <select 
-            value={filters.organType} 
-            onChange={(e) => setFilters({...filters, organType: e.target.value})}
-          >
-            <option value="">All Organ Types</option>
-            <option value="Heart">Heart</option>
-            <option value="Liver">Liver</option>
-            <option value="Kidneys">Kidneys</option>
-            <option value="Lungs">Lungs</option>
-            <option value="Pancreas">Pancreas</option>
-            <option value="Corneas">Corneas</option>
-            <option value="Skin">Skin</option>
-            <option value="Bone">Bone</option>
-          </select>
-          
-          <select 
-            value={filters.location} 
-            onChange={(e) => setFilters({...filters, location: e.target.value})}
-          >
-            <option value="">All Locations</option>
-            <option value="Yavatmal">Yavatmal</option>
-            <option value="Pusad">Pusad</option>
-            <option value="Nagpur">Nagpur</option>
-            <option value="Akola">Akola</option>
-            <option value="Washim">Washim</option>
-            <option value="Amravati">Amravati</option>
-            <option value="Buldhana">Buldhana</option>
-            <option value="Wardha">Wardha</option>
-          </select>
-        </div>
-
-        <div className="donors-grid">
-          {filteredDonors.length > 0 ? (
-            filteredDonors.map(donor => (
-              <div key={donor.id} className="donor-card">
-                <h4>{donor.name}</h4>
-                <p><strong>Blood Type:</strong> {donor.blood_type}</p>
-                <p><strong>Location:</strong> {donor.address}</p>
-                {donor.organ_donor && donor.organs_to_donate && (
-                  <p><strong>Organ Donor:</strong> {
-                    (() => {
-                      try {
-                        return JSON.parse(donor.organs_to_donate).join(', ');
-                      } catch (e) {
-                        return 'Yes';
-                      }
-                    })()
-                  }</p>
-                )}
-                <button onClick={handleActionClick} className="contact-btn">Contact Donor</button>
-              </div>
-            ))
-          ) : (
-            <div className="no-results">
-              <p>No donors found matching your criteria. Try adjusting your filters.</p>
-            </div>
-          )}
-        </div>
       </div>
 
       <div className="inventory-section">
@@ -241,24 +141,113 @@ function Home() {
         </div>
 
         <div className="organ-inventory">
-          <h2>Organ Donation Statistics</h2>
-          <div className="organ-stats">
-            <div className="stat-card">
-              <h3>Active Organ Donors</h3>
-              <p className="stat-number">{donors.filter(d => d.organ_donor).length}</p>
+          <h2>Available Organ Donors</h2>
+          <div className="organ-availability-grid">
+            <div className="organ-card">
+              <div className="organ-icon">❤️</div>
+              <h3>Heart</h3>
+              <p className="organ-count">{getOrganCount('Heart')} Available</p>
+              <button onClick={handleActionClick} className="request-btn">Request</button>
             </div>
-            <div className="stat-card">
-              <h3>Pending Organ Donations</h3>
-              <p className="stat-number">{organInventory.filter(o => o.status === 'pending').length}</p>
+            <div className="organ-card">
+              <div className="organ-icon">🫘</div>
+              <h3>Kidney</h3>
+              <p className="organ-count">{getOrganCount('Kidney')} Available</p>
+              <button onClick={handleActionClick} className="request-btn">Request</button>
             </div>
-            <div className="stat-card">
-              <h3>Completed Organ Donations</h3>
-              <p className="stat-number">{organInventory.filter(o => o.status === 'completed').length}</p>
+            <div className="organ-card">
+              <div className="organ-icon">👁️</div>
+              <h3>Eye</h3>
+              <p className="organ-count">{getOrganCount('Eye')} Available</p>
+              <button onClick={handleActionClick} className="request-btn">Request</button>
             </div>
           </div>
-          <button onClick={handleActionClick} className="request-btn">Request Organ</button>
         </div>
       </div>
+      <div className="sop-section">
+        <h2>Standard Operating Procedures (SOP) for Organ Donation</h2>
+        <p className="sop-intro">Complete guidelines and protocols for safe organ donation</p>
+        
+        <div className="sop-grid">
+          <div className="sop-card">
+            <div className="sop-header">
+              <span className="sop-icon">❤️</span>
+              <h3>Heart Donation</h3>
+              <span className="sop-badge">Deceased Only</span>
+            </div>
+            <div className="sop-content">
+              <h4>Eligibility Criteria</h4>
+              <ul>
+                <li>Age: 18-55 years (up to 65 in exceptional cases)</li>
+                <li>Brain death certification required</li>
+                <li>Normal cardiac function (EF ≥45%)</li>
+                <li>No active infections or heart disease</li>
+              </ul>
+              <h4>Key Requirements</h4>
+              <ul>
+                <li>Two independent physicians must certify brain death</li>
+                <li>Echocardiogram and cardiac evaluation</li>
+                <li>Family consent and legal authorization</li>
+                <li>Hemodynamic stability maintained</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="sop-card">
+            <div className="sop-header">
+              <span className="sop-icon">🫘</span>
+              <h3>Kidney Donation</h3>
+              <span className="sop-badge">Living & Deceased</span>
+            </div>
+            <div className="sop-content">
+              <h4>Eligibility Criteria</h4>
+              <ul>
+                <li>Age: 18-65 years (living), up to 70 (deceased)</li>
+                <li>Normal kidney function (GFR ≥80 ml/min)</li>
+                <li>BMI: 18-35 kg/m²</li>
+                <li>Blood pressure controlled</li>
+              </ul>
+              <h4>Evaluation Process</h4>
+              <ul>
+                <li>Phase 1: Medical history & blood tests</li>
+                <li>Phase 2: Imaging (CT/MRI) & tissue typing</li>
+                <li>Phase 3: Psychological evaluation</li>
+                <li>Lifelong follow-up for living donors</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="sop-card">
+            <div className="sop-header">
+              <span className="sop-icon">👁️</span>
+              <h3>Eye (Cornea) Donation</h3>
+              <span className="sop-badge">Deceased Only</span>
+            </div>
+            <div className="sop-content">
+              <h4>Eligibility Criteria</h4>
+              <ul>
+                <li>Age: All ages (newborn to elderly)</li>
+                <li>Retrieval within 6-8 hours of death</li>
+                <li>No active eye infections</li>
+                <li>Previous eye surgery not a contraindication</li>
+              </ul>
+              <h4>Key Points</h4>
+              <ul>
+                <li>Most liberal eligibility criteria</li>
+                <li>Can restore sight to corneal blind</li>
+                <li>Minimal disfigurement (prosthetic placed)</li>
+                <li>Stored in preservation media (14 days)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div className="sop-footer">
+          <p><strong>Important:</strong> All donors must read and accept organ-specific SOP before registration. Complete medical evaluation and consent forms are mandatory.</p>
+          <Link to="/register" className="sop-cta-button">Register as Organ Donor</Link>
+        </div>
+      </div>
+
       <div className="precautions-section">
         <h2>Donation Precautions</h2>
         <div className="precautions-content">

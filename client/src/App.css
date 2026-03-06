@@ -864,6 +864,144 @@ body {
   color: #666;
 }
 
+/* SOP Section */
+.sop-section {
+  padding: 3rem 2rem;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  margin: 2rem 0;
+  border-radius: 12px;
+}
+
+.sop-section h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #333;
+  font-size: 2rem;
+}
+
+.sop-intro {
+  text-align: center;
+  color: #666;
+  margin-bottom: 2.5rem;
+  font-size: 1.1rem;
+}
+
+.sop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+}
+
+.sop-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.sop-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+
+.sop-header {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+  padding: 1.5rem;
+  text-align: center;
+  position: relative;
+}
+
+.sop-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.sop-header h3 {
+  margin: 0.5rem 0;
+  font-size: 1.5rem;
+}
+
+.sop-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.2);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.sop-content {
+  padding: 1.5rem;
+}
+
+.sop-content h4 {
+  color: #dc3545;
+  margin: 1rem 0 0.5rem;
+  font-size: 1rem;
+}
+
+.sop-content h4:first-child {
+  margin-top: 0;
+}
+
+.sop-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+
+.sop-content li {
+  padding: 0.4rem 0 0.4rem 1.5rem;
+  position: relative;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #555;
+}
+
+.sop-content li::before {
+  content: '•';
+  color: #dc3545;
+  position: absolute;
+  left: 0;
+  font-size: 1.2rem;
+}
+
+.sop-footer {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.sop-footer p {
+  margin-bottom: 1.5rem;
+  color: #666;
+  line-height: 1.6;
+}
+
+.sop-cta-button {
+  display: inline-block;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  padding: 1rem 2rem;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: transform 0.3s;
+}
+
+.sop-cta-button:hover {
+  transform: translateY(-2px);
+}
+
 /* Precautions Section */
 .precautions-section {
   padding: 3rem 2rem;
@@ -960,4 +1098,218 @@ body {
   .admin-tabs {
     flex-wrap: wrap;
   }
+}
+
+/* Organ Donation Form Styles */
+.organ-availability-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.organ-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 30px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  transition: transform 0.3s;
+}
+
+.organ-card:hover {
+  transform: translateY(-5px);
+}
+
+.organ-icon {
+  font-size: 60px;
+  margin-bottom: 15px;
+}
+
+.organ-card h3 {
+  font-size: 24px;
+  margin: 10px 0;
+}
+
+.organ-count {
+  font-size: 32px;
+  font-weight: bold;
+  margin: 15px 0;
+}
+
+.organ-card .request-btn {
+  background: white;
+  color: #667eea;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 10px;
+  transition: all 0.3s;
+}
+
+.organ-card .request-btn:hover {
+  background: #f0f0f0;
+  transform: scale(1.05);
+}
+
+.form-section {
+  margin-bottom: 25px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.form-section h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #2c3e50;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 10px;
+  font-size: 1.2rem;
+}
+
+.sop-section {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+}
+
+.sop-content {
+  margin: 15px 0;
+  padding: 15px;
+  background: white;
+  border-radius: 5px;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+}
+
+.sop-content h4 {
+  margin-top: 0;
+  color: #856404;
+}
+
+.sop-content ul {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.sop-content li {
+  margin: 8px 0;
+  line-height: 1.6;
+}
+
+.sop-content strong {
+  color: #856404;
+}
+
+.sop-content a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.sop-content a:hover {
+  text-decoration: underline;
+}
+
+.checkbox-group {
+  margin-top: 15px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 15px;
+  background: white;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 2px solid #ddd;
+  transition: border-color 0.3s;
+}
+
+.checkbox-label:hover {
+  border-color: #3498db;
+}
+
+.checkbox-label input[type="checkbox"] {
+  margin-top: 3px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.checkbox-label span {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.btn-secondary:hover {
+  background: #5a6268;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.form-group input[type="text"],
+.form-group input[type="tel"],
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.success-message {
+  background: #d4edda;
+  color: #155724;
+  padding: 12px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  border: 1px solid #c3e6cb;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 12px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  border: 1px solid #f5c6cb;
 }
