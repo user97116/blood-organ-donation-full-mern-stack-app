@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Login, Register, AdminRegister } from './Auth';
 import Dashboard from './Dashboard';
 import AdminPanel from './AdminPanel';
+import ChatAssistant from './ChatAssistant';
 import './App.css';
 
 const API_URL = 'http://localhost:5000/api';
@@ -51,6 +52,7 @@ function App() {
           <Route path="/admin/register" element={!user ? <AdminRegister setUser={setUser} /> : <Navigate to="/dashboard" />} />
           <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/login" />} />
           <Route path="/admin" element={user?.role === 'admin' ? <AdminPanel /> : <Navigate to="/dashboard" />} />
+          <Route path="/chat" element={user ? <ChatAssistant /> : <Navigate to="/login" />} />
         </Routes>
       </div>
     </Router>
@@ -69,6 +71,7 @@ function Navbar({ user, logout }) {
             <span className="welcome">Welcome, {user.name}</span>
             <Link to="/dashboard">Dashboard</Link>
             {user.role === 'admin' && <Link to="/admin">Admin Panel</Link>}
+            <Link to="/chat">AI Assistant</Link>
             <button onClick={logout} className="logout-btn">Logout</button>
           </>
         ) : (

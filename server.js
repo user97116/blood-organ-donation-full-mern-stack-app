@@ -29,6 +29,7 @@ setTimeout(() => {
 app.use('/api', require('./routes/auth'));
 app.use('/api/hospitals', require('./routes/hospitals'));
 app.use('/api/organ-donations', require('./routes/organ_donations'));
+app.use('/api', require('./routes/chat'));
 
 // Users management (admin)
 app.get('/api/users', (req, res) => {
