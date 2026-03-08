@@ -5,6 +5,10 @@ import { Login, Register, AdminRegister } from './Auth';
 import Dashboard from './Dashboard';
 import AdminPanel from './AdminPanel';
 import ChatAssistant from './ChatAssistant';
+import OrganDonation from './OrganDonation';
+import OrganRequest from './OrganRequest';
+import OrganInventory from './OrganInventory';
+import MedicalHistory from './MedicalHistory';
 import './App.css';
 
 const API_URL = 'http://localhost:5000/api';
@@ -53,6 +57,10 @@ function App() {
           <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/login" />} />
           <Route path="/admin" element={user?.role === 'admin' ? <AdminPanel /> : <Navigate to="/dashboard" />} />
           <Route path="/chat" element={user ? <ChatAssistant /> : <Navigate to="/login" />} />
+          <Route path="/organ-donation" element={user ? <OrganDonation /> : <Navigate to="/login" />} />
+          <Route path="/organ-request" element={user ? <OrganRequest /> : <Navigate to="/login" />} />
+          <Route path="/organ-inventory" element={user ? <OrganInventory /> : <Navigate to="/login" />} />
+          <Route path="/medical-history" element={user ? <MedicalHistory /> : <Navigate to="/login" />} />
         </Routes>
       </div>
     </Router>

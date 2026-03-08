@@ -1,0 +1,98 @@
+.sop-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.sop-modal {
+  background: white;
+  border-radius: 10px;
+  max-width: 700px;
+  width: 90%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.sop-modal h2 {
+  padding: 20px;
+  margin: 0;
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+  border-radius: 10px 10px 0 0;
+}
+
+.sop-content {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+  max-height: 50vh;
+}
+
+.sop-content h3 {
+  color: #e74c3c;
+  margin-top: 20px;
+}
+
+.sop-content ul {
+  margin-left: 20px;
+}
+
+.sop-content li {
+  margin: 8px 0;
+}
+
+.scroll-instruction {
+  text-align: center;
+  color: #e74c3c;
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+.sop-actions {
+  padding: 20px;
+  display: flex;
+  gap: 15px;
+  border-top: 1px solid #eee;
+}
+
+.sop-actions button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-accept {
+  background: linear-gradient(135deg, #27ae60, #229954);
+  color: white;
+}
+
+.btn-accept:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+}
+
+.btn-accept:hover:not(:disabled) {
+  background: linear-gradient(135deg, #229954, #27ae60);
+}
+
+.btn-decline {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+}
+
+.btn-decline:hover {
+  background: linear-gradient(135deg, #c0392b, #e74c3c);
+}

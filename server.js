@@ -29,6 +29,10 @@ setTimeout(() => {
 app.use('/api', require('./routes/auth'));
 app.use('/api/hospitals', require('./routes/hospitals'));
 app.use('/api/organ-donations', require('./routes/organ_donations'));
+app.use('/api/organ-requests', require('./routes/organ_requests'));
+app.use('/api/organ-inventory', require('./routes/organ_inventory'));
+app.use('/api/medical-evaluation', require('./routes/medical_evaluation'));
+app.use('/api/sop-acceptance', require('./routes/sop_acceptance'));
 app.use('/api', require('./routes/chat'));
 
 // Users management (admin)

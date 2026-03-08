@@ -1,0 +1,131 @@
+.organ-request-container {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.request-form,
+.requests-list {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.request-form h2,
+.requests-list h2 {
+  color: #e74c3c;
+  margin-bottom: 25px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-submit:hover {
+  background: linear-gradient(135deg, #c0392b, #e74c3c);
+}
+
+.requests-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.request-card {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 15px;
+  background: #fafafa;
+}
+
+.request-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.organ-type {
+  font-size: 18px;
+  font-weight: 600;
+  color: #e74c3c;
+  text-transform: capitalize;
+}
+
+.urgency-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.urgency-badge.low { background: #3498db; color: white; }
+.urgency-badge.medium { background: #f39c12; color: white; }
+.urgency-badge.high { background: #e67e22; color: white; }
+.urgency-badge.critical { background: #e74c3c; color: white; }
+
+.request-card p {
+  margin: 8px 0;
+  color: #555;
+  font-size: 14px;
+}
+
+.status-badge {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.pending { background: #f39c12; color: white; }
+.status-badge.fulfilled { background: #27ae60; color: white; }
+.status-badge.rejected { background: #e74c3c; color: white; }
+
+.no-data {
+  text-align: center;
+  color: #999;
+  padding: 40px;
+}
+
+@media (max-width: 768px) {
+  .organ-request-container {
+    grid-template-columns: 1fr;
+  }
+}

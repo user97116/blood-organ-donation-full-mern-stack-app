@@ -1,0 +1,55 @@
+.medical-history-form {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 30px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.medical-history-form h2 {
+  color: #e74c3c;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.medical-history-form .form-group {
+  margin-bottom: 20px;
+}
+
+.medical-history-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.medical-history-form input,
+.medical-history-form textarea,
+.medical-history-form select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.medical-history-form textarea {
+  resize: vertical;
+}
+
+.medical-history-form .btn-primary {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.medical-history-form .btn-primary:hover {
+  background: linear-gradient(135deg, #c0392b, #e74c3c);
+}
