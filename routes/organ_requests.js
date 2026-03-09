@@ -5,16 +5,16 @@ const router = express.Router();
 // Get all organ requests
 router.get('/', authenticateToken, (req, res) => {
   const query = req.user.role === 'admin' 
-    ? `SELECT or.*, u.name as requester_name, h.name as hospital_name 
-       FROM organ_requests or 
-       LEFT JOIN users u ON or.requester_id = u.id 
-       LEFT JOIN hospitals h ON or.hospital_id = h.id 
-       ORDER BY or.created_at DESC`
-    : `SELECT or.*, h.name as hospital_name 
-       FROM organ_requests or 
-       LEFT JOIN hospitals h ON or.hospital_id = h.id 
-       WHERE or.requester_id = ? 
-       ORDER BY or.created_at DESC`;
+    ? `SELECT orr.*, u.name as requester_name, h.name as hospital_name 
+       FROM organ_requests orr 
+       LEFT JOIN users u ON orr.requester_id = u.id 
+       LEFT JOIN hospitals h ON orr.hospital_id = h.id 
+       ORDER BY orr.created_at DESC`
+    : `SELECT orr.*, h.name as hospital_name 
+       FROM organ_requests orr 
+       LEFT JOIN hospitals h ON orr.hospital_id = h.id 
+       WHERE orr.requester_id = ? 
+       ORDER BY orr.created_at DESC`;
   
   const params = req.user.role === 'admin' ? [] : [req.user.userId];
   

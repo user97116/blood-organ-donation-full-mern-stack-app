@@ -14,13 +14,16 @@ function AdminPanel() {
   const [organDonations, setOrganDonations] = useState([]);
   const [organRequests, setOrganRequests] = useState([]);
   const [inventory, setInventory] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchAdminData();
   }, []);
 
   const fetchAdminData = async () => {
+    setLoading(true);
     try {
+      console.log('Fetching admin data...');
       const [statsRes, usersRes, hospitalsRes, doctorsRes, donationsRes, requestsRes, organDonationsRes, organRequestsRes, inventoryRes] = await Promise.all([
         axios.get(`${API_URL}/dashboard/stats`),
         axios.get(`${API_URL}/users`),
@@ -33,6 +36,10 @@ function AdminPanel() {
         axios.get(`${API_URL}/blood-inventory`)
       ]);
       
+      console.log('Hospitals:', hospitalsRes.data.length);
+      console.log('Doctors:', doctorsRes.data.length);
+      console.log('Users:', usersRes.data.length);
+      
       setStats(statsRes.data);
       setUsers(usersRes.data);
       setHospitals(hospitalsRes.data);
@@ -42,8 +49,14 @@ function AdminPanel() {
       setOrganDonations(organDonationsRes.data);
       setOrganRequests(organRequestsRes.data);
       setInventory(inventoryRes.data);
+      
+      console.log('Data loaded successfully');
     } catch (error) {
       console.error('Error fetching admin data:', error);
+      console.error('Error details:', error.response?.data || error.message);
+      alert(`Error loading admin data: ${error.response?.data?.error || error.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -52,6 +65,9 @@ function AdminPanel() {
       <div className="admin-header">
         <h1>Admin Panel</h1>
         <p>Blood Bank Management System</p>
+        <div style={{ background: '#f0f0f0', padding: '10px', margin: '10px 0', borderRadius: '5px' }}>
+          <strong>Debug Info:</strong> Hospitals: {hospitals.length} | Doctors: {doctors.length} | Users: {users.length}
+        </div>
       </div>
 
       <div className="admin-tabs">
@@ -112,15 +128,23 @@ function AdminPanel() {
       </div>
 
       <div className="admin-content">
-        {activeTab === 'dashboard' && <AdminDashboard stats={stats} />}
-        {activeTab === 'users' && <UserManagement users={users} onUpdate={fetchAdminData} />}
-        {activeTab === 'hospitals' && <HospitalManagement hospitals={hospitals} onUpdate={fetchAdminData} />}
-        {activeTab === 'doctors' && <DoctorManagement doctors={doctors} hospitals={hospitals} onUpdate={fetchAdminData} />}
-        {activeTab === 'inventory' && <InventoryManagement inventory={inventory} />}
-        {activeTab === 'donations' && <DonationManagement donations={donations} />}
-        {activeTab === 'requests' && <RequestManagement requests={requests} />}
-        {activeTab === 'organ-donations' && <OrganDonationManagement organDonations={organDonations} />}
-        {activeTab === 'organ-requests' && <OrganRequestManagement organRequests={organRequests} />}
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '50px' }}>
+            <h2>Loading...</h2>
+          </div>
+        ) : (
+          <>
+            {activeTab === 'dashboard' && <AdminDashboard stats={stats} />}
+            {activeTab === 'users' && <UserManagement users={users} onUpdate={fetchAdminData} />}
+            {activeTab === 'hospitals' && <HospitalManagement hospitals={hospitals} onUpdate={fetchAdminData} />}
+            {activeTab === 'doctors' && <DoctorManagement doctors={doctors} hospitals={hospitals} onUpdate={fetchAdminData} />}
+            {activeTab === 'inventory' && <InventoryManagement inventory={inventory} />}
+            {activeTab === 'donations' && <DonationManagement donations={donations} />}
+            {activeTab === 'requests' && <RequestManagement requests={requests} />}
+            {activeTab === 'organ-donations' && <OrganDonationManagement organDonations={organDonations} />}
+            {activeTab === 'organ-requests' && <OrganRequestManagement organRequests={organRequests} />}
+          </>
+        )}
       </div>
     </div>
   );
@@ -254,6 +278,8 @@ function HospitalManagement({ hospitals, onUpdate }) {
     name: '', address: '', phone: '', email: '', license_number: ''
   });
 
+  console.log('HospitalManagement - hospitals count:', hospitals.length);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -366,20 +392,28 @@ function HospitalManagement({ hospitals, onUpdate }) {
             </tr>
           </thead>
           <tbody>
-            {hospitals.map(hospital => (
-              <tr key={hospital.id}>
-                <td>{hospital.name}</td>
-                <td>{hospital.address}</td>
-                <td>{hospital.phone}</td>
-                <td>{hospital.email}</td>
-                <td>{hospital.license_number}</td>
-                <td><span className={`status ${hospital.status}`}>{hospital.status}</span></td>
-                <td>
-                  <button onClick={() => editHospital(hospital)} className="edit-btn">Edit</button>
-                  <button onClick={() => deleteHospital(hospital.id)} className="delete-btn">Delete</button>
+            {hospitals.length === 0 ? (
+              <tr>
+                <td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>
+                  No hospitals found. Click "Add Hospital" to add one.
                 </td>
               </tr>
-            ))}
+            ) : (
+              hospitals.map(hospital => (
+                <tr key={hospital.id}>
+                  <td>{hospital.name}</td>
+                  <td>{hospital.address}</td>
+                  <td>{hospital.phone}</td>
+                  <td>{hospital.email}</td>
+                  <td>{hospital.license_number}</td>
+                  <td><span className={`status ${hospital.status}`}>{hospital.status}</span></td>
+                  <td>
+                    <button onClick={() => editHospital(hospital)} className="edit-btn">Edit</button>
+                    <button onClick={() => deleteHospital(hospital.id)} className="delete-btn">Delete</button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -392,6 +426,8 @@ function DoctorManagement({ doctors, hospitals, onUpdate }) {
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '', specialization: '', hospital_id: '', license_number: ''
   });
+
+  console.log('DoctorManagement - doctors count:', doctors.length);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -488,17 +524,25 @@ function DoctorManagement({ doctors, hospitals, onUpdate }) {
             </tr>
           </thead>
           <tbody>
-            {doctors.map(doctor => (
-              <tr key={doctor.id}>
-                <td>{doctor.name}</td>
-                <td>{doctor.email}</td>
-                <td>{doctor.phone}</td>
-                <td>{doctor.specialization}</td>
-                <td>{doctor.hospital_name}</td>
-                <td>{doctor.license_number}</td>
-                <td><span className={`status ${doctor.status}`}>{doctor.status}</span></td>
+            {doctors.length === 0 ? (
+              <tr>
+                <td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>
+                  No doctors found. Click "Add Doctor" to add one.
+                </td>
               </tr>
-            ))}
+            ) : (
+              doctors.map(doctor => (
+                <tr key={doctor.id}>
+                  <td>{doctor.name}</td>
+                  <td>{doctor.email}</td>
+                  <td>{doctor.phone}</td>
+                  <td>{doctor.specialization}</td>
+                  <td>{doctor.hospital_name}</td>
+                  <td>{doctor.license_number}</td>
+                  <td><span className={`status ${doctor.status}`}>{doctor.status}</span></td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
