@@ -34,12 +34,9 @@ const OrganDonation = () => {
 
   const handleSOPAccept = async () => {
     try {
-      const token = localStorage.getItem('token');
       await axios.post('http://localhost:5000/api/sop-acceptance', {
         organ_type: selectedOrgan,
         sop_accepted: true
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
       setSopAccepted(true);
       setShowSOP(false);
@@ -61,15 +58,12 @@ const OrganDonation = () => {
 
   const handleFinalSubmit = async () => {
     try {
-      const token = localStorage.getItem('token');
       await axios.post('http://localhost:5000/api/organ-donations', {
         organ_type: selectedOrgan,
         hospital_id: selectedHospital,
         notes,
         ...medicalData,
         consent_sop_accepted: 1
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
       alert('Organ donation registered successfully!');
       resetForm();

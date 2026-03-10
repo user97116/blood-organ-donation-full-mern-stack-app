@@ -13,20 +13,21 @@ function Dashboard({ user }) {
   const [hospitals, setHospitals] = useState([]);
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    if (user) {
+      fetchDashboardData();
+    }
+  }, [user]);
 
   const fetchDashboardData = async () => {
     try {
       const isAdmin = user.role === 'admin';
-      const userParam = isAdmin ? '' : `?userId=${user.id}`;
       
       const [statsRes, donationsRes, requestsRes, organDonationsRes, organRequestsRes, hospitalsRes] = await Promise.all([
         axios.get(`${API_URL}/dashboard/stats`),
-        axios.get(`${API_URL}/blood-donations${userParam}`),
-        axios.get(`${API_URL}/blood-requests${userParam}`),
-        axios.get(`${API_URL}/organ-donations${userParam}`),
-        axios.get(`${API_URL}/organ-requests${userParam}`),
+        axios.get(`${API_URL}/blood-donations`),
+        axios.get(`${API_URL}/blood-requests`),
+        axios.get(`${API_URL}/organ-donations`),
+        axios.get(`${API_URL}/organ-requests`),
         axios.get(`${API_URL}/hospitals`)
       ]);
       

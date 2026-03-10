@@ -18,6 +18,7 @@ axios.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+    console.log('Token added to request:', token.substring(0, 20) + '...');
   }
   return config;
 });
@@ -29,6 +30,8 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
+    console.log('Token from localStorage:', token ? token.substring(0, 20) + '...' : 'none');
+    console.log('User from localStorage:', userData);
     
     if (token && userData) {
       setUser(JSON.parse(userData));
@@ -104,19 +107,16 @@ function Home() {
 
   const fetchPublicData = async () => {
     try {
-      const [inventoryRes, organInventoryRes] = await Promise.all([
-        axios.get(`${API_URL}/blood-inventory`),
-        axios.get(`${API_URL}/organ-inventory`)
-      ]);
-      
+      const inventoryRes = await axios.get(`${API_URL}/blood-inventory`);
       setInventory(inventoryRes.data);
-      setOrganInventory(organInventoryRes.data);
+      // Don't fetch organ-inventory for public - it requires auth
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
 
   const getOrganCount = (organType) => {
+    if (!organInventory || !Array.isArray(organInventory)) return 0;
     return organInventory.filter(o => 
       o.organ_type === organType && 
       (o.status === 'pending' || o.status === 'eligible')
@@ -153,23 +153,24 @@ function Home() {
 
         <div className="organ-inventory">
           <h2>Available Organ Donors</h2>
+          <p className="organ-intro">Organ donation requires authentication. Please login to view organ availability and make requests.</p>
           <div className="organ-availability-grid">
             <div className="organ-card">
               <div className="organ-icon">❤️</div>
               <h3>Heart</h3>
-              <p className="organ-count">{getOrganCount('Heart')} Available</p>
+              <p className="organ-count">Login to view</p>
               <button onClick={handleActionClick} className="request-btn">Request</button>
             </div>
             <div className="organ-card">
               <div className="organ-icon">🫘</div>
               <h3>Kidney</h3>
-              <p className="organ-count">{getOrganCount('Kidney')} Available</p>
+              <p className="organ-count">Login to view</p>
               <button onClick={handleActionClick} className="request-btn">Request</button>
             </div>
             <div className="organ-card">
               <div className="organ-icon">👁️</div>
               <h3>Eye</h3>
-              <p className="organ-count">{getOrganCount('Eye')} Available</p>
+              <p className="organ-count">Login to view</p>
               <button onClick={handleActionClick} className="request-btn">Request</button>
             </div>
           </div>

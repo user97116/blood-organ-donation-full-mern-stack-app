@@ -3,12 +3,22 @@ const { authenticateToken } = require('../middleware/auth');
 const router = express.Router();
 
 // Get all organ donations
-router.get('/', (req, res) => {
-  req.db.all(`SELECT od.*, u.name as donor_name, h.name as hospital_name 
-          FROM organ_donations od 
-          LEFT JOIN users u ON od.donor_id = u.id 
-          LEFT JOIN hospitals h ON od.hospital_id = h.id 
-          ORDER BY od.created_at DESC`, (err, rows) => {
+router.get('/', authenticateToken, (req, res) => {
+  const query = req.user.role === 'admin'
+    ? `SELECT od.*, u.name as donor_name, h.name as hospital_name 
+       FROM organ_donations od 
+       LEFT JOIN users u ON od.donor_id = u.id 
+       LEFT JOIN hospitals h ON od.hospital_id = h.id 
+       ORDER BY od.created_at DESC`
+    : `SELECT od.*, h.name as hospital_name 
+       FROM organ_donations od 
+       LEFT JOIN hospitals h ON od.hospital_id = h.id 
+       WHERE od.donor_id = ? 
+       ORDER BY od.created_at DESC`;
+  
+  const params = req.user.role === 'admin' ? [] : [req.user.userId];
+  
+  req.db.all(query, params, (err, rows) => {
     if (err) return res.status(400).json({ error: err.message });
     res.json(rows);
   });

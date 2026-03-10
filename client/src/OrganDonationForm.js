@@ -34,12 +34,9 @@ const OrganDonationForm = ({ onClose, onSuccess }) => {
     }
 
     try {
-      const token = localStorage.getItem('token');
       await axios.post('http://localhost:5000/api/organ-donations', {
         ...formData,
         consent_sop_accepted: formData.consent_sop_accepted ? 1 : 0
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
       alert('Organ donation registered successfully!');
       onSuccess();

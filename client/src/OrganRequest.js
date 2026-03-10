@@ -28,10 +28,7 @@ const OrganRequest = () => {
 
   const fetchRequests = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/organ-requests', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await axios.get('http://localhost:5000/api/organ-requests');
       setRequests(response.data);
     } catch (error) {
       console.error('Error fetching requests:', error);
@@ -45,10 +42,7 @@ const OrganRequest = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/organ-requests', formData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await axios.post('http://localhost:5000/api/organ-requests', formData);
       alert('Organ request submitted successfully');
       setFormData({ organ_type: '', hospital_id: '', urgency: 'medium', reason: '' });
       fetchRequests();

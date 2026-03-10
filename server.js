@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { initializeDatabase } = require('./config/database');
 const { insertDummyData } = require('./data/dummyData');
+const { authenticateToken } = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -36,14 +37,20 @@ app.use('/api/sop-acceptance', require('./routes/sop_acceptance'));
 app.use('/api', require('./routes/chat'));
 
 // Users management (admin)
-app.get('/api/users', (req, res) => {
+app.get('/api/users', authenticateToken, (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
   db.all('SELECT id, name, email, phone, blood_type, role, status, created_at FROM users ORDER BY created_at DESC', (err, rows) => {
     if (err) return res.status(400).json({ error: err.message });
     res.json(rows);
   });
 });
 
-app.put('/api/users/:id', (req, res) => {
+app.put('/api/users/:id', authenticateToken, (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
   const { role, status } = req.body;
   db.run('UPDATE users SET role = ?, status = ? WHERE id = ?', [role, status, req.params.id], function(err) {
     if (err) return res.status(400).json({ error: err.message });
@@ -52,7 +59,10 @@ app.put('/api/users/:id', (req, res) => {
 });
 
 // Doctors management
-app.get('/api/doctors', (req, res) => {
+app.get('/api/doctors', authenticateToken, (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
   db.all(`SELECT d.*, h.name as hospital_name 
           FROM doctors d 
           LEFT JOIN hospitals h ON d.hospital_id = h.id 
@@ -62,7 +72,10 @@ app.get('/api/doctors', (req, res) => {
   });
 });
 
-app.post('/api/doctors', (req, res) => {
+app.post('/api/doctors', authenticateToken, (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
   const { name, email, phone, specialization, hospital_id, license_number } = req.body;
   db.run('INSERT INTO doctors (name, email, phone, specialization, hospital_id, license_number) VALUES (?, ?, ?, ?, ?, ?)',
     [name, email, phone, specialization, hospital_id, license_number], function(err) {
@@ -72,62 +85,91 @@ app.post('/api/doctors', (req, res) => {
 });
 
 // Blood donations
-app.get('/api/blood-donations', (req, res) => {
-  const userId = req.query.userId;
-  let query = `SELECT bd.*, u.name as donor_name, h.name as hospital_name 
-               FROM blood_donations bd 
-               LEFT JOIN users u ON bd.donor_id = u.id 
-               LEFT JOIN hospitals h ON bd.hospital_id = h.id`;
+app.get('/api/blood-donations', authenticateToken, (req, res) => {
+  const userId = req.user.userId;
+  const query = req.user.role === 'admin'
+    ? `SELECT bd.*, u.name as donor_name, h.name as hospital_name 
+       FROM blood_donations bd 
+       LEFT JOIN users u ON bd.donor_id = u.id 
+       LEFT JOIN hospitals h ON bd.hospital_id = h.id
+       ORDER BY bd.created_at DESC`
+    : `SELECT bd.*, h.name as hospital_name 
+       FROM blood_donations bd 
+       LEFT JOIN hospitals h ON bd.hospital_id = h.id
+       WHERE bd.donor_id = ?
+       ORDER BY bd.created_at DESC`;
   
-  if (userId) {
-    query += ` WHERE bd.donor_id = ${userId}`;
-  }
+  const params = req.user.role === 'admin' ? [] : [userId];
   
-  query += ` ORDER BY bd.created_at DESC`;
-  
-  db.all(query, (err, rows) => {
+  db.all(query, params, (err, rows) => {
     if (err) return res.status(400).json({ error: err.message });
     res.json(rows);
   });
 });
 
 // Blood requests
-app.get('/api/blood-requests', (req, res) => {
-  db.all(`SELECT br.*, u.name as requester_name, h.name as hospital_name 
-          FROM blood_requests br 
-          LEFT JOIN users u ON br.requester_id = u.id 
-          LEFT JOIN hospitals h ON br.hospital_id = h.id 
-          ORDER BY br.created_at DESC`, (err, rows) => {
+app.get('/api/blood-requests', authenticateToken, (req, res) => {
+  const userId = req.user.userId;
+  const query = req.user.role === 'admin'
+    ? `SELECT br.*, u.name as requester_name, h.name as hospital_name 
+       FROM blood_requests br 
+       LEFT JOIN users u ON br.requester_id = u.id 
+       LEFT JOIN hospitals h ON br.hospital_id = h.id
+       ORDER BY br.created_at DESC`
+    : `SELECT br.*, h.name as hospital_name 
+       FROM blood_requests br 
+       LEFT JOIN hospitals h ON br.hospital_id = h.id
+       WHERE br.requester_id = ?
+       ORDER BY br.created_at DESC`;
+  
+  const params = req.user.role === 'admin' ? [] : [userId];
+  
+  db.all(query, params, (err, rows) => {
     if (err) return res.status(400).json({ error: err.message });
     res.json(rows);
   });
 });
 
 // Organ requests
-app.get('/api/organ-requests', (req, res) => {
-  db.all(`SELECT orr.*, u.name as requester_name, h.name as hospital_name 
-          FROM organ_requests orr 
-          LEFT JOIN users u ON orr.requester_id = u.id 
-          LEFT JOIN hospitals h ON orr.hospital_id = h.id 
-          ORDER BY orr.created_at DESC`, (err, rows) => {
+app.get('/api/organ-requests', authenticateToken, (req, res) => {
+  const userId = req.user.userId;
+  const query = req.user.role === 'admin'
+    ? `SELECT orr.*, u.name as requester_name, h.name as hospital_name 
+       FROM organ_requests orr 
+       LEFT JOIN users u ON orr.requester_id = u.id 
+       LEFT JOIN hospitals h ON orr.hospital_id = h.id 
+       ORDER BY orr.created_at DESC`
+    : `SELECT orr.*, h.name as hospital_name 
+       FROM organ_requests orr 
+       LEFT JOIN hospitals h ON orr.hospital_id = h.id 
+       WHERE orr.requester_id = ?
+       ORDER BY orr.created_at DESC`;
+  
+  const params = req.user.role === 'admin' ? [] : [userId];
+  
+  db.all(query, params, (err, rows) => {
     if (err) return res.status(400).json({ error: err.message });
     res.json(rows);
   });
 });
 
-app.post('/api/organ-requests', (req, res) => {
+app.post('/api/organ-requests', authenticateToken, (req, res) => {
   const { organ_type, urgency, reason, hospital_id } = req.body;
+  const requester_id = req.user.userId;
   const requested_date = new Date().toISOString().split('T')[0];
   
   db.run('INSERT INTO organ_requests (requester_id, hospital_id, organ_type, urgency, reason, requested_date) VALUES (?, ?, ?, ?, ?, ?)',
-    [1, hospital_id, organ_type, urgency, reason, requested_date], function(err) {
+    [requester_id, hospital_id, organ_type, urgency, reason, requested_date], function(err) {
       if (err) return res.status(400).json({ error: err.message });
       res.json({ message: 'Organ request submitted successfully', id: this.lastID });
     });
 });
 
 // Admin actions for blood donations
-app.put('/api/blood-donations/:id', (req, res) => {
+app.put('/api/blood-donations/:id', authenticateToken, (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
   const { status } = req.body;
   db.run('UPDATE blood_donations SET status = ? WHERE id = ?', [status, req.params.id], function(err) {
     if (err) return res.status(400).json({ error: err.message });
@@ -135,7 +177,10 @@ app.put('/api/blood-donations/:id', (req, res) => {
   });
 });
 
-app.delete('/api/blood-donations/:id', (req, res) => {
+app.delete('/api/blood-donations/:id', authenticateToken, (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
   db.run('DELETE FROM blood_donations WHERE id = ?', [req.params.id], function(err) {
     if (err) return res.status(400).json({ error: err.message });
     res.json({ message: 'Blood donation deleted successfully' });
@@ -143,7 +188,10 @@ app.delete('/api/blood-donations/:id', (req, res) => {
 });
 
 // Admin actions for blood requests
-app.put('/api/blood-requests/:id', (req, res) => {
+app.put('/api/blood-requests/:id', authenticateToken, (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
   const { status, fulfilled_date } = req.body;
   const updateDate = status === 'fulfilled' ? new Date().toISOString().split('T')[0] : null;
   
@@ -154,7 +202,10 @@ app.put('/api/blood-requests/:id', (req, res) => {
     });
 });
 
-app.delete('/api/blood-requests/:id', (req, res) => {
+app.delete('/api/blood-requests/:id', authenticateToken, (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
   db.run('DELETE FROM blood_requests WHERE id = ?', [req.params.id], function(err) {
     if (err) return res.status(400).json({ error: err.message });
     res.json({ message: 'Blood request deleted successfully' });
@@ -162,7 +213,10 @@ app.delete('/api/blood-requests/:id', (req, res) => {
 });
 
 // Admin actions for organ requests
-app.put('/api/organ-requests/:id', (req, res) => {
+app.put('/api/organ-requests/:id', authenticateToken, (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
   const { status, fulfilled_date } = req.body;
   const updateDate = status === 'fulfilled' ? new Date().toISOString().split('T')[0] : null;
   
@@ -173,7 +227,10 @@ app.put('/api/organ-requests/:id', (req, res) => {
     });
 });
 
-app.delete('/api/organ-requests/:id', (req, res) => {
+app.delete('/api/organ-requests/:id', authenticateToken, (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
   db.run('DELETE FROM organ_requests WHERE id = ?', [req.params.id], function(err) {
     if (err) return res.status(400).json({ error: err.message });
     res.json({ message: 'Organ request deleted successfully' });
@@ -181,7 +238,10 @@ app.delete('/api/organ-requests/:id', (req, res) => {
 });
 
 // Delete user (admin)
-app.delete('/api/users/:id', (req, res) => {
+app.delete('/api/users/:id', authenticateToken, (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
   db.run('DELETE FROM users WHERE id = ?', [req.params.id], function(err) {
     if (err) return res.status(400).json({ error: err.message });
     res.json({ message: 'User deleted successfully' });
@@ -189,7 +249,10 @@ app.delete('/api/users/:id', (req, res) => {
 });
 
 // Delete doctor (admin)
-app.delete('/api/doctors/:id', (req, res) => {
+app.delete('/api/doctors/:id', authenticateToken, (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
   db.run('DELETE FROM doctors WHERE id = ?', [req.params.id], function(err) {
     if (err) return res.status(400).json({ error: err.message });
     res.json({ message: 'Doctor deleted successfully' });
@@ -197,16 +260,17 @@ app.delete('/api/doctors/:id', (req, res) => {
 });
 
 // Dashboard stats
-app.get('/api/dashboard/stats', (req, res) => {
+app.get('/api/dashboard/stats', authenticateToken, (req, res) => {
   const stats = {};
+  const userId = req.user.userId;
   
   db.get('SELECT COUNT(*) as count FROM users WHERE role = "donor"', (err, row) => {
     stats.totalDonors = row ? row.count : 0;
     
-    db.get('SELECT COUNT(*) as count FROM blood_donations', (err, row) => {
+    db.get('SELECT COUNT(*) as count FROM blood_donations WHERE donor_id = ?', [userId], (err, row) => {
       stats.totalDonations = row ? row.count : 0;
       
-      db.get('SELECT COUNT(*) as count FROM blood_requests WHERE status = "pending"', (err, row) => {
+      db.get('SELECT COUNT(*) as count FROM blood_requests WHERE requester_id = ? AND status = "pending"', [userId], (err, row) => {
         stats.pendingRequests = row ? row.count : 0;
         
         db.get('SELECT COUNT(*) as count FROM hospitals', (err, row) => {
@@ -219,8 +283,9 @@ app.get('/api/dashboard/stats', (req, res) => {
 });
 
 // Blood donations
-app.post('/api/blood-donations', (req, res) => {
+app.post('/api/blood-donations', authenticateToken, (req, res) => {
   const { blood_type, quantity, hospital_id, notes } = req.body;
+  const donor_id = req.user.userId;
   const donation_date = new Date().toISOString().split('T')[0];
   const expiryDate = new Date();
   expiryDate.setDate(expiryDate.getDate() + 35);
@@ -228,7 +293,7 @@ app.post('/api/blood-donations', (req, res) => {
   
   db.run(
     'INSERT INTO blood_donations (donor_id, hospital_id, blood_type, quantity, donation_date, expiry_date, notes) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    [1, hospital_id, blood_type, quantity, donation_date, expiry_date, notes],
+    [donor_id, hospital_id, blood_type, quantity, donation_date, expiry_date, notes],
     function(err) {
       if (err) return res.status(400).json({ error: err.message });
       res.json({ message: 'Blood donation recorded successfully', id: this.lastID });
@@ -237,13 +302,14 @@ app.post('/api/blood-donations', (req, res) => {
 });
 
 // Blood requests
-app.post('/api/blood-requests', (req, res) => {
+app.post('/api/blood-requests', authenticateToken, (req, res) => {
   const { blood_type, quantity, urgency, reason, hospital_id } = req.body;
+  const requester_id = req.user.userId;
   const requested_date = new Date().toISOString().split('T')[0];
   
   db.run(
     'INSERT INTO blood_requests (requester_id, hospital_id, blood_type, quantity, urgency, reason, requested_date) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    [1, hospital_id, blood_type, quantity, urgency, reason, requested_date],
+    [requester_id, hospital_id, blood_type, quantity, urgency, reason, requested_date],
     function(err) {
       if (err) return res.status(400).json({ error: err.message });
       res.json({ message: 'Blood request submitted successfully', id: this.lastID });
@@ -280,8 +346,15 @@ app.get('/api/donors', (req, res) => {
 });
 
 // Get organ inventory/stats
-app.get('/api/organ-inventory', (req, res) => {
-  db.all(`SELECT * FROM organ_donations ORDER BY created_at DESC`, (err, rows) => {
+app.get('/api/organ-inventory', authenticateToken, (req, res) => {
+  const userId = req.user.userId;
+  const query = req.user.role === 'admin'
+    ? `SELECT * FROM organ_donations ORDER BY created_at DESC`
+    : `SELECT * FROM organ_donations WHERE donor_id = ? ORDER BY created_at DESC`;
+  
+  const params = req.user.role === 'admin' ? [] : [userId];
+  
+  db.all(query, params, (err, rows) => {
     if (err) return res.status(400).json({ error: err.message });
     res.json(rows);
   });

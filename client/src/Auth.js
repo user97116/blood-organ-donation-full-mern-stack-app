@@ -19,6 +19,7 @@ function Login({ setUser }) {
       
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
+      console.log('Token stored:', token.substring(0, 20) + '...');
       setUser(user);
     } catch (error) {
       setError(error.response?.data?.error || 'Login failed');
