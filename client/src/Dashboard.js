@@ -55,30 +55,34 @@ function Dashboard({ user }) {
         >
           Overview
         </button>
-        <button 
-          className={activeTab === 'donate' ? 'active' : ''}
-          onClick={() => setActiveTab('donate')}
-        >
-          Donate Blood
-        </button>
-        <button 
-          className={activeTab === 'organ-donate' ? 'active' : ''}
-          onClick={() => setActiveTab('organ-donate')}
-        >
-          Donate Organ
-        </button>
-        <button 
-          className={activeTab === 'request' ? 'active' : ''}
-          onClick={() => setActiveTab('request')}
-        >
-          Request Blood
-        </button>
-        <button 
-          className={activeTab === 'organ-request' ? 'active' : ''}
-          onClick={() => setActiveTab('organ-request')}
-        >
-          Request Organ
-        </button>
+        {user.role !== 'admin' && (
+          <>
+            <button 
+              className={activeTab === 'donate' ? 'active' : ''}
+              onClick={() => setActiveTab('donate')}
+            >
+              Donate Blood
+            </button>
+            <button 
+              className={activeTab === 'organ-donate' ? 'active' : ''}
+              onClick={() => setActiveTab('organ-donate')}
+            >
+              Donate Organ
+            </button>
+            <button 
+              className={activeTab === 'request' ? 'active' : ''}
+              onClick={() => setActiveTab('request')}
+            >
+              Request Blood
+            </button>
+            <button 
+              className={activeTab === 'organ-request' ? 'active' : ''}
+              onClick={() => setActiveTab('organ-request')}
+            >
+              Request Organ
+            </button>
+          </>
+        )}
         <button 
           className={activeTab === 'history' ? 'active' : ''}
           onClick={() => setActiveTab('history')}

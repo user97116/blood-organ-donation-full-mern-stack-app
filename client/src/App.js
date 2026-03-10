@@ -59,7 +59,7 @@ function App() {
           <Route path="/chat" element={user ? <ChatAssistant /> : <Navigate to="/login" />} />
           <Route path="/organ-donation" element={user ? <OrganDonation /> : <Navigate to="/login" />} />
           <Route path="/organ-request" element={user ? <OrganRequest /> : <Navigate to="/login" />} />
-          <Route path="/organ-inventory" element={user ? <OrganInventory /> : <Navigate to="/login" />} />
+          <Route path="/organ-inventory" element={user?.role === 'admin' ? <OrganInventory /> : <Navigate to="/dashboard" />} />
           <Route path="/medical-history" element={user ? <MedicalHistory /> : <Navigate to="/login" />} />
         </Routes>
       </div>
