@@ -141,4 +141,14 @@ const initializeDatabase = () => {
   return db;
 };
 
-module.exports = { initializeDatabase };
+let db = null;
+
+const getDatabase = () => {
+  if (!db) {
+    const dbPath = path.join(__dirname, '../donation.db');
+    db = new sqlite3.Database(dbPath);
+  }
+  return db;
+};
+
+module.exports = { initializeDatabase, db: getDatabase() };
