@@ -457,3 +457,63 @@ function AdminRegister({ setUser }) {
 }
 
 export { Login, Register, AdminRegister };
+
+function DoctorRegister({ setUser }) {
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', phone: '', specialization: '', license_number: '', hospital_id: '' });
+  const [hospitals, setHospitals] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    axios.get(`${API_URL}/hospitals`).then(r => setHospitals(r.data)).catch(() => {});
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true); setError('');
+    try {
+      await axios.post(`${API_URL}/doctor/register`, formData);
+      const res = await axios.post(`${API_URL}/login`, { email: formData.email, password: formData.password });
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+      setUser(res.data.user);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Registration failed');
+    } finally { setLoading(false); }
+  };
+
+  return (
+    <div className="auth-container">
+      <div className="auth-form">
+        <h2>🩺 Doctor Registration</h2>
+        <p className="form-subtitle">Register as a medical professional</p>
+        {error && <div className="error-message">{error}</div>}
+        <form onSubmit={handleSubmit}>
+          <div className="form-row">
+            <div className="form-group"><label>Full Name *</label><input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required /></div>
+            <div className="form-group"><label>Email *</label><input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} required /></div>
+          </div>
+          <div className="form-row">
+            <div className="form-group"><label>Password *</label><input type="password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} required /></div>
+            <div className="form-group"><label>Phone</label><input value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} /></div>
+          </div>
+          <div className="form-row">
+            <div className="form-group"><label>Specialization</label><input value={formData.specialization} onChange={e => setFormData({...formData, specialization: e.target.value})} /></div>
+            <div className="form-group"><label>License Number</label><input value={formData.license_number} onChange={e => setFormData({...formData, license_number: e.target.value})} /></div>
+          </div>
+          <div className="form-group">
+            <label>Hospital *</label>
+            <select value={formData.hospital_id} onChange={e => setFormData({...formData, hospital_id: e.target.value})} required>
+              <option value="">Select Hospital</option>
+              {hospitals.map(h => <option key={h.id} value={h.id}>{h.name}</option>)}
+            </select>
+          </div>
+          <button type="submit" disabled={loading} className="submit-btn">{loading ? 'Registering...' : 'Register as Doctor'}</button>
+        </form>
+        <div className="auth-footer"><p>Already registered? <a href="/login">Login here</a></p></div>
+      </div>
+    </div>
+  );
+}
+
+export { DoctorRegister };

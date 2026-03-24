@@ -11,6 +11,8 @@ function Dashboard({ user }) {
   const [organDonations, setOrganDonations] = useState([]);
   const [organRequests, setOrganRequests] = useState([]);
   const [hospitals, setHospitals] = useState([]);
+  const [doctorRequests, setDoctorRequests] = useState([]);
+  const [doctorProfile, setDoctorProfile] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -22,13 +24,14 @@ function Dashboard({ user }) {
     try {
       const isAdmin = user.role === 'admin';
       
-      const [statsRes, donationsRes, requestsRes, organDonationsRes, organRequestsRes, hospitalsRes] = await Promise.all([
+      const [statsRes, donationsRes, requestsRes, organDonationsRes, organRequestsRes, hospitalsRes, doctorRequestsRes] = await Promise.all([
         axios.get(`${API_URL}/dashboard/stats`),
         axios.get(`${API_URL}/blood-donations`),
         axios.get(`${API_URL}/blood-requests`),
         axios.get(`${API_URL}/organ-donations`),
         axios.get(`${API_URL}/organ-requests`),
-        axios.get(`${API_URL}/hospitals`)
+        axios.get(`${API_URL}/hospitals`),
+        axios.get(`${API_URL}/doctor-requests`)
       ]);
       
       setStats(statsRes.data);
@@ -37,6 +40,22 @@ function Dashboard({ user }) {
       setOrganDonations(organDonationsRes.data);
       setOrganRequests(organRequestsRes.data);
       setHospitals(hospitalsRes.data);
+      setDoctorRequests(doctorRequestsRes.data);
+
+      if (user.role === 'doctor') {
+        try {
+          const doctorMeRes = await axios.get(`${API_URL}/doctors/me`);
+          setDoctorProfile(doctorMeRes.data);
+        } catch (doctorErr) {
+          // Prevent "Loading..." dead-end if profile endpoint has transient issue
+          setDoctorProfile({
+            hospital_name: '',
+            availability_status: 'available',
+            schedule: ''
+          });
+          console.error('Error loading doctor profile:', doctorErr);
+        }
+      }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     }
@@ -56,62 +75,355 @@ function Dashboard({ user }) {
         >
           Overview
         </button>
-        {user.role !== 'admin' && (
+        {user.role !== 'admin' && user.role !== 'doctor' && (
           <>
-            <button 
-              className={activeTab === 'donate' ? 'active' : ''}
-              onClick={() => setActiveTab('donate')}
-            >
-              Donate Blood
-            </button>
-            <button 
-              className={activeTab === 'organ-donate' ? 'active' : ''}
-              onClick={() => setActiveTab('organ-donate')}
-            >
-              Donate Organ
-            </button>
-            <button 
-              className={activeTab === 'request' ? 'active' : ''}
-              onClick={() => setActiveTab('request')}
-            >
-              Request Blood
-            </button>
-            <button 
-              className={activeTab === 'organ-request' ? 'active' : ''}
-              onClick={() => setActiveTab('organ-request')}
-            >
-              Request Organ
-            </button>
+            <button className={activeTab === 'donate' ? 'active' : ''} onClick={() => setActiveTab('donate')}>Donate Blood</button>
+            <button className={activeTab === 'organ-donate' ? 'active' : ''} onClick={() => setActiveTab('organ-donate')}>Donate Organ</button>
+            <button className={activeTab === 'request' ? 'active' : ''} onClick={() => setActiveTab('request')}>Request Blood</button>
+            <button className={activeTab === 'organ-request' ? 'active' : ''} onClick={() => setActiveTab('organ-request')}>Request Organ</button>
+            <button className={activeTab === 'doctor-help' ? 'active' : ''} onClick={() => setActiveTab('doctor-help')}>Doctor Assistance</button>
           </>
         )}
-        <button 
-          className={activeTab === 'history' ? 'active' : ''}
-          onClick={() => setActiveTab('history')}
-        >
-          My History
-        </button>
+        {user.role === 'doctor' && (
+          <>
+            <button className={activeTab === 'all-donations' ? 'active' : ''} onClick={() => setActiveTab('all-donations')}>Blood Donations</button>
+            <button className={activeTab === 'all-requests' ? 'active' : ''} onClick={() => setActiveTab('all-requests')}>Blood Requests</button>
+            <button className={activeTab === 'organ-donations' ? 'active' : ''} onClick={() => setActiveTab('organ-donations')}>Organ Donations</button>
+            <button className={activeTab === 'organ-requests' ? 'active' : ''} onClick={() => setActiveTab('organ-requests')}>Organ Requests</button>
+            <button className={activeTab === 'doctor-requests' ? 'active' : ''} onClick={() => setActiveTab('doctor-requests')}>My Doctor Requests</button>
+            <button className={activeTab === 'availability' ? 'active' : ''} onClick={() => setActiveTab('availability')}>My Availability</button>
+          </>
+        )}
+        <button className={activeTab === 'history' ? 'active' : ''} onClick={() => setActiveTab('history')}>My History</button>
       </div>
 
       <div className="dashboard-content">
-        {activeTab === 'overview' && (
-          <Overview stats={stats} user={user} />
+        {activeTab === 'overview' && <Overview stats={stats} user={user} />}
+        {activeTab === 'donate' && <DonateBlood hospitals={hospitals} onSuccess={fetchDashboardData} />}
+        {activeTab === 'organ-donate' && <DonateOrgan hospitals={hospitals} onSuccess={fetchDashboardData} />}
+        {activeTab === 'request' && <RequestBlood hospitals={hospitals} onSuccess={fetchDashboardData} />}
+        {activeTab === 'organ-request' && <RequestOrgan hospitals={hospitals} onSuccess={fetchDashboardData} />}
+        {activeTab === 'history' && <History donations={donations} requests={requests} organDonations={organDonations} organRequests={organRequests} user={user} />}
+        {activeTab === 'all-donations' && <DoctorView data={donations} type="blood-donations" />}
+        {activeTab === 'all-requests' && <DoctorView data={requests} type="blood-requests" />}
+        {activeTab === 'organ-donations' && <DoctorView data={organDonations} type="organ-donations" />}
+        {activeTab === 'organ-requests' && <DoctorView data={organRequests} type="organ-requests" />}
+        {activeTab === 'doctor-help' && (
+          <DoctorHelpRequest
+            hospitals={hospitals}
+            requests={doctorRequests}
+            onSuccess={fetchDashboardData}
+          />
         )}
-        {activeTab === 'donate' && (
-          <DonateBlood hospitals={hospitals} onSuccess={fetchDashboardData} />
-        )}
-        {activeTab === 'organ-donate' && (
-          <DonateOrgan hospitals={hospitals} onSuccess={fetchDashboardData} />
-        )}
-        {activeTab === 'request' && (
-          <RequestBlood hospitals={hospitals} onSuccess={fetchDashboardData} />
-        )}
-        {activeTab === 'organ-request' && (
-          <RequestOrgan hospitals={hospitals} onSuccess={fetchDashboardData} />
-        )}
-        {activeTab === 'history' && (
-          <History donations={donations} requests={requests} organDonations={organDonations} organRequests={organRequests} user={user} />
+        {activeTab === 'doctor-requests' && <DoctorRequestsTable requests={doctorRequests} />}
+        {activeTab === 'availability' && user.role === 'doctor' && (
+          <DoctorAvailability profile={doctorProfile} onSuccess={fetchDashboardData} />
         )}
       </div>
+    </div>
+  );
+}
+
+function DoctorView({ data, type }) {
+  const [statusFilter, setStatusFilter] = useState('');
+  const isOrgan = type.startsWith('organ');
+  const isRequest = type.endsWith('requests');
+
+  const updateStatus = async (id, status) => {
+    try {
+      await axios.put(`${API_URL}/${type}/${id}`, { status });
+      window.location.reload();
+    } catch { alert('Error updating status'); }
+  };
+
+  const filtered = data.filter(d => !statusFilter || d.status === statusFilter);
+
+  return (
+    <div>
+      <div className="section-header" style={{marginBottom:'1rem'}}>
+        <h3 style={{fontSize:'1rem',color:'#222'}}>
+          {type.replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}
+        </h3>
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
+          style={{padding:'0.35rem 0.75rem',borderRadius:'20px',border:'1.5px solid #e2e6ea',fontSize:'0.8rem',cursor:'pointer'}}>
+          <option value="">All Statuses</option>
+          {(isOrgan
+            ? (isRequest ? ['pending','fulfilled','rejected'] : ['pending','eligible','completed','rejected'])
+            : (isRequest ? ['pending','fulfilled','rejected'] : ['active','expired','used'])
+          ).map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
+      </div>
+      <div className="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>{isRequest ? 'Requester' : 'Donor'}</th>
+              {isOrgan ? <th>Organ</th> : <th>Blood Type</th>}
+              {!isOrgan && !isRequest && <th>Quantity</th>}
+              {isRequest && <th>Urgency</th>}
+              <th>Hospital</th>
+              <th>Status</th>
+              <th>Update</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map(d => (
+              <tr key={d.id}>
+                <td>{new Date(d.donation_date || d.requested_date || d.created_at).toLocaleDateString()}</td>
+                <td>{d.donor_name || d.requester_name || '—'}</td>
+                <td>{d.organ_type || d.blood_type || '—'}</td>
+                {!isOrgan && !isRequest && <td>{d.quantity} units</td>}
+                {isRequest && <td><span className={`urgency ${d.urgency}`}>{d.urgency}</span></td>}
+                <td>{d.hospital_name || '—'}</td>
+                <td><span className={`status ${d.status}`}>{d.status}</span></td>
+                <td>
+                  <select value={d.status} onChange={e => updateStatus(d.id, e.target.value)}
+                    style={{fontSize:'0.78rem',padding:'0.25rem 0.5rem',borderRadius:'5px',border:'1px solid #ddd'}}>
+                    {(isOrgan
+                      ? (isRequest ? ['pending','fulfilled','rejected'] : ['pending','eligible','completed','rejected'])
+                      : (isRequest ? ['pending','fulfilled','rejected'] : ['active','expired','used'])
+                    ).map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function DoctorRequestsTable({ requests }) {
+  return (
+    <div className="doctor-requests">
+      <div className="section-header" style={{ marginBottom: '1rem' }}>
+        <h3 style={{ fontSize: '1rem', color: '#222' }}>My Doctor Requests</h3>
+      </div>
+      <div className="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Requester</th>
+              <th>Hospital</th>
+              <th>Topic</th>
+              <th>Message</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {requests.length > 0 ? (
+              requests.map(r => (
+                <tr key={r.id}>
+                  <td>{new Date(r.created_at).toLocaleDateString()}</td>
+                  <td>{r.requester_name || '—'}</td>
+                  <td>{r.hospital_name || '—'}</td>
+                  <td>{r.topic || '—'}</td>
+                  <td style={{ maxWidth: 280, wordBreak: 'break-word' }}>{r.message}</td>
+                  <td><span className={`status ${r.status}`}>{r.status}</span></td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>
+                  No doctor requests assigned yet.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function DoctorHelpRequest({ hospitals, requests, onSuccess }) {
+  const [formData, setFormData] = useState({
+    hospital_id: '',
+    topic: 'general',
+    message: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage('');
+    try {
+      await axios.post(`${API_URL}/doctor-requests`, formData);
+      setMessage('Request submitted successfully!');
+      setFormData({ hospital_id: '', topic: 'general', message: '' });
+      onSuccess();
+    } catch (error) {
+      setMessage(error.response?.data?.error || 'Error submitting request');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="doctor-help">
+      <div className="donate-section">
+        <h2>Doctor Assistance Request</h2>
+        {message && (
+          <div className={message.includes('success') ? 'success-message' : 'error-message'}>
+            {message}
+          </div>
+        )}
+        <form onSubmit={submit} className="donation-form">
+          <div className="form-group">
+            <label>Hospital *</label>
+            <select
+              value={formData.hospital_id}
+              onChange={(e) => setFormData({ ...formData, hospital_id: e.target.value })}
+              required
+            >
+              <option value="">Select Hospital</option>
+              {hospitals.map(h => (
+                <option key={h.id} value={h.id}>{h.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Topic</label>
+            <select
+              value={formData.topic}
+              onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
+            >
+              <option value="general">General</option>
+              <option value="blood">Blood</option>
+              <option value="organ">Organ</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Request Details *</label>
+            <textarea
+              value={formData.message}
+              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+              rows="4"
+              required
+              placeholder="Describe what you need help with..."
+            />
+          </div>
+          <button type="submit" disabled={loading} className="submit-btn">
+            {loading ? 'Submitting...' : 'Submit to Admin'}
+          </button>
+        </form>
+      </div>
+
+      <div className="history-section" style={{ marginTop: '1.5rem' }}>
+        <h3>Your Submitted Requests</h3>
+        <div className="history-table">
+          {requests.length > 0 ? (
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Hospital</th>
+                  <th>Topic</th>
+                  <th>Message</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {requests.map(r => (
+                  <tr key={r.id}>
+                    <td>{new Date(r.created_at).toLocaleDateString()}</td>
+                    <td>{r.hospital_name || '—'}</td>
+                    <td>{r.topic || '—'}</td>
+                    <td style={{ maxWidth: 280, wordBreak: 'break-word' }}>{r.message}</td>
+                    <td><span className={`status ${r.status}`}>{r.status}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>No requests submitted yet.</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DoctorAvailability({ profile, onSuccess }) {
+  const [accountStatus, setAccountStatus] = useState('active');
+  const [availabilityStatus, setAvailabilityStatus] = useState('available');
+  const [schedule, setSchedule] = useState('');
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (profile) {
+      setAccountStatus(profile.status || 'active');
+      setAvailabilityStatus(profile.availability_status || 'available');
+      setSchedule(profile.schedule || '');
+    }
+  }, [profile]);
+
+  const save = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage('');
+    try {
+      await axios.put(`${API_URL}/doctors/me/availability`, {
+        status: accountStatus,
+        availability_status: availabilityStatus,
+        schedule
+      });
+      setMessage('Availability updated successfully!');
+      onSuccess();
+    } catch (error) {
+      setMessage(error.response?.data?.error || 'Error updating availability');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!profile) return <p>Loading doctor profile...</p>;
+
+  return (
+    <div className="donate-section">
+      <h2>My Availability</h2>
+      <p><strong>Hospital:</strong> {profile.hospital_name || '—'}</p>
+      {message && (
+        <div className={message.includes('success') ? 'success-message' : 'error-message'}>
+          {message}
+        </div>
+      )}
+      <form onSubmit={save} className="donation-form">
+        <div className="form-group">
+          <label>Account Status</label>
+          <select value={accountStatus} onChange={(e) => setAccountStatus(e.target.value)}>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label>Availability Status</label>
+          <select value={availabilityStatus} onChange={(e) => setAvailabilityStatus(e.target.value)}>
+            <option value="available">Available</option>
+            <option value="busy">Busy</option>
+            <option value="on_leave">On Leave</option>
+            <option value="off_duty">Off Duty</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label>Schedule</label>
+          <input
+            type="text"
+            placeholder="e.g. Mon-Fri 9am-5pm"
+            value={schedule}
+            onChange={(e) => setSchedule(e.target.value)}
+          />
+        </div>
+        <button type="submit" className="submit-btn" disabled={loading}>
+          {loading ? 'Saving...' : 'Save Availability'}
+        </button>
+      </form>
     </div>
   );
 }
@@ -120,19 +432,23 @@ function Overview({ stats, user }) {
   return (
     <div className="overview">
       <div className="stats-grid">
-        <div className="stat-card">
+        <div className="stat-card primary">
+          <div className="stat-icon">👥</div>
           <h3>Total Donors</h3>
           <p className="stat-number">{stats.totalDonors || 0}</p>
         </div>
-        <div className="stat-card">
+        <div className="stat-card success">
+          <div className="stat-icon">🏥</div>
           <h3>Total Hospitals</h3>
           <p className="stat-number">{stats.totalHospitals || 0}</p>
         </div>
         <div className="stat-card">
+          <div className="stat-icon">🩸</div>
           <h3>Total Donations</h3>
           <p className="stat-number">{stats.totalDonations || 0}</p>
         </div>
-        <div className="stat-card">
+        <div className="stat-card warning">
+          <div className="stat-icon">⏳</div>
           <h3>Pending Requests</h3>
           <p className="stat-number">{stats.pendingRequests || 0}</p>
         </div>
@@ -369,6 +685,51 @@ function RequestBlood({ hospitals, onSuccess }) {
 }
 
 function History({ donations, requests, organDonations, organRequests, user }) {
+  const [filters, setFilters] = useState({
+    bdStatus: '', bdType: '',
+    odStatus: '', odType: '',
+    brStatus: '', brType: '', brUrgency: '',
+    orStatus: '', orType: '', orUrgency: '',
+    dateRange: '',
+  });
+
+  const setFilter = (key, val) => setFilters(f => ({ ...f, [key]: val }));
+
+  const getDateCutoff = () => {
+    if (!filters.dateRange) return null;
+    const now = new Date();
+    const days = { 'week': 7, 'month': 30, '3months': 90, '6months': 180, 'year': 365 }[filters.dateRange];
+    return new Date(now - days * 86400000);
+  };
+
+  const inDateRange = (dateStr) => {
+    const cutoff = getDateCutoff();
+    return !cutoff || new Date(dateStr) >= cutoff;
+  };
+
+  const filteredDonations = donations.filter(d =>
+    (!filters.bdStatus || d.status === filters.bdStatus) &&
+    (!filters.bdType || d.blood_type === filters.bdType) &&
+    inDateRange(d.donation_date)
+  );
+  const filteredOrganDonations = organDonations.filter(d =>
+    (!filters.odStatus || d.status === filters.odStatus) &&
+    (!filters.odType || d.organ_type === filters.odType) &&
+    inDateRange(d.donation_date || d.created_at)
+  );
+  const filteredRequests = requests.filter(r =>
+    (!filters.brStatus || r.status === filters.brStatus) &&
+    (!filters.brType || r.blood_type === filters.brType) &&
+    (!filters.brUrgency || r.urgency === filters.brUrgency) &&
+    inDateRange(r.requested_date)
+  );
+  const filteredOrganRequests = organRequests.filter(r =>
+    (!filters.orStatus || r.status === filters.orStatus) &&
+    (!filters.orType || r.organ_type === filters.orType) &&
+    (!filters.orUrgency || r.urgency === filters.orUrgency) &&
+    inDateRange(r.requested_date)
+  );
+
   const updateBloodDonationStatus = async (id, status) => {
     try {
       await axios.put(`${API_URL}/blood-donations/${id}`, { status });
@@ -409,10 +770,33 @@ function History({ donations, requests, organDonations, organRequests, user }) {
 
   return (
     <div className="history">
+      <div className="history-date-filter">
+        <label>Show:</label>
+        <select value={filters.dateRange} onChange={e => setFilter('dateRange', e.target.value)}>
+          <option value="">All Time</option>
+          <option value="week">Last Week</option>
+          <option value="month">Last Month</option>
+          <option value="3months">Last 3 Months</option>
+          <option value="6months">Last 6 Months</option>
+          <option value="year">Last Year</option>
+        </select>
+      </div>
       <div className="history-section">
         <h3>My Blood Donations</h3>
+        <div className="history-filters">
+          <select value={filters.bdType} onChange={e => setFilter('bdType', e.target.value)}>
+            <option value="">All Blood Types</option>
+            {['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+          <select value={filters.bdStatus} onChange={e => setFilter('bdStatus', e.target.value)}>
+            <option value="">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="expired">Expired</option>
+            <option value="used">Used</option>
+          </select>
+        </div>
         <div className="history-table">
-          {donations.length > 0 ? (
+          {filteredDonations.length > 0 ? (
             <table>
               <thead>
                 <tr>
@@ -425,7 +809,7 @@ function History({ donations, requests, organDonations, organRequests, user }) {
                 </tr>
               </thead>
               <tbody>
-                {donations.map(donation => (
+                {filteredDonations.map(donation => (
                   <tr key={donation.id}>
                     <td>{new Date(donation.donation_date).toLocaleDateString()}</td>
                     <td>{donation.blood_type}</td>
@@ -456,8 +840,23 @@ function History({ donations, requests, organDonations, organRequests, user }) {
 
       <div className="history-section">
         <h3>My Organ Donations</h3>
+        <div className="history-filters">
+          <select value={filters.odType} onChange={e => setFilter('odType', e.target.value)}>
+            <option value="">All Organs</option>
+            <option value="heart">Heart</option>
+            <option value="kidney">Kidney</option>
+            <option value="eye">Eye</option>
+          </select>
+          <select value={filters.odStatus} onChange={e => setFilter('odStatus', e.target.value)}>
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="eligible">Eligible</option>
+            <option value="completed">Completed</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
         <div className="history-table">
-          {organDonations.length > 0 ? (
+          {filteredOrganDonations.length > 0 ? (
             <table>
               <thead>
                 <tr>
@@ -469,7 +868,7 @@ function History({ donations, requests, organDonations, organRequests, user }) {
                 </tr>
               </thead>
               <tbody>
-                {organDonations.map(donation => (
+                {filteredOrganDonations.map(donation => (
                   <tr key={donation.id}>
                     <td>{donation.donation_date ? new Date(donation.donation_date).toLocaleDateString() : 'Pending'}</td>
                     <td>{donation.organ_type}</td>
@@ -500,8 +899,27 @@ function History({ donations, requests, organDonations, organRequests, user }) {
 
       <div className="history-section">
         <h3>My Blood Requests</h3>
+        <div className="history-filters">
+          <select value={filters.brType} onChange={e => setFilter('brType', e.target.value)}>
+            <option value="">All Blood Types</option>
+            {['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+          <select value={filters.brUrgency} onChange={e => setFilter('brUrgency', e.target.value)}>
+            <option value="">All Urgencies</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+          <select value={filters.brStatus} onChange={e => setFilter('brStatus', e.target.value)}>
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="fulfilled">Fulfilled</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
         <div className="history-table">
-          {requests.length > 0 ? (
+          {filteredRequests.length > 0 ? (
             <table>
               <thead>
                 <tr>
@@ -514,7 +932,7 @@ function History({ donations, requests, organDonations, organRequests, user }) {
                 </tr>
               </thead>
               <tbody>
-                {requests.map(request => (
+                {filteredRequests.map(request => (
                   <tr key={request.id}>
                     <td>{new Date(request.requested_date).toLocaleDateString()}</td>
                     <td>{request.blood_type}</td>
@@ -545,8 +963,29 @@ function History({ donations, requests, organDonations, organRequests, user }) {
 
       <div className="history-section">
         <h3>My Organ Requests</h3>
+        <div className="history-filters">
+          <select value={filters.orType} onChange={e => setFilter('orType', e.target.value)}>
+            <option value="">All Organs</option>
+            <option value="heart">Heart</option>
+            <option value="kidney">Kidney</option>
+            <option value="eye">Eye</option>
+          </select>
+          <select value={filters.orUrgency} onChange={e => setFilter('orUrgency', e.target.value)}>
+            <option value="">All Urgencies</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+          <select value={filters.orStatus} onChange={e => setFilter('orStatus', e.target.value)}>
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="fulfilled">Fulfilled</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
         <div className="history-table">
-          {organRequests.length > 0 ? (
+          {filteredOrganRequests.length > 0 ? (
             <table>
               <thead>
                 <tr>
@@ -558,7 +997,7 @@ function History({ donations, requests, organDonations, organRequests, user }) {
                 </tr>
               </thead>
               <tbody>
-                {organRequests.map(request => (
+                {filteredOrganRequests.map(request => (
                   <tr key={request.id}>
                     <td>{new Date(request.requested_date).toLocaleDateString()}</td>
                     <td>{request.organ_type}</td>

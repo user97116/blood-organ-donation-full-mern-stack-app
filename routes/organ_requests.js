@@ -4,19 +4,35 @@ const router = express.Router();
 
 // Get all organ requests
 router.get('/', authenticateToken, (req, res) => {
-  const query = req.user.role === 'admin' 
+  const query = req.user.role === 'admin'
     ? `SELECT orr.*, u.name as requester_name, h.name as hospital_name 
        FROM organ_requests orr 
        LEFT JOIN users u ON orr.requester_id = u.id 
        LEFT JOIN hospitals h ON orr.hospital_id = h.id 
        ORDER BY orr.created_at DESC`
-    : `SELECT orr.*, h.name as hospital_name 
-       FROM organ_requests orr 
-       LEFT JOIN hospitals h ON orr.hospital_id = h.id 
-       WHERE orr.requester_id = ? 
-       ORDER BY orr.created_at DESC`;
-  
-  const params = req.user.role === 'admin' ? [] : [req.user.userId];
+    : req.user.role === 'doctor'
+      ? `SELECT orr.*, u.name as requester_name, h.name as hospital_name
+         FROM organ_requests orr
+         LEFT JOIN users u ON orr.requester_id = u.id
+         LEFT JOIN hospitals h ON orr.hospital_id = h.id
+         WHERE orr.hospital_id = (
+           SELECT d.hospital_id
+           FROM doctors d
+           WHERE d.email = (SELECT u.email FROM users u WHERE u.id = ?)
+         )
+         ORDER BY orr.created_at DESC`
+      : `SELECT orr.*, u.name as requester_name, h.name as hospital_name 
+         FROM organ_requests orr 
+         LEFT JOIN users u ON orr.requester_id = u.id 
+         LEFT JOIN hospitals h ON orr.hospital_id = h.id 
+         WHERE orr.requester_id = ?
+         ORDER BY orr.created_at DESC`;
+
+  const params = req.user.role === 'admin'
+    ? []
+    : req.user.role === 'doctor'
+      ? [req.user.userId]
+      : [req.user.userId];
   
   req.db.all(query, params, (err, rows) => {
     if (err) return res.status(400).json({ error: err.message });

@@ -34,6 +34,7 @@ app.use('/api/organ-requests', require('./routes/organ_requests'));
 app.use('/api/organ-inventory', require('./routes/organ_inventory'));
 app.use('/api/medical-evaluation', require('./routes/medical_evaluation'));
 app.use('/api/sop-acceptance', require('./routes/sop_acceptance'));
+app.use('/api/doctor-requests', require('./routes/doctor_requests'));
 app.use('/api', require('./routes/chat'));
 
 // Users management (admin)
@@ -84,6 +85,129 @@ app.post('/api/doctors', authenticateToken, (req, res) => {
     });
 });
 
+app.put('/api/doctors/:id', authenticateToken, (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
+
+  const { status, availability_status, schedule } = req.body;
+
+  db.run(
+    `UPDATE doctors
+     SET status = COALESCE(?, status),
+         availability_status = COALESCE(?, availability_status),
+         schedule = COALESCE(?, schedule)
+     WHERE id = ?`,
+    [status || null, availability_status || null, schedule || null, req.params.id],
+    function(err) {
+      if (err) return res.status(400).json({ error: err.message });
+      res.json({ message: 'Doctor updated successfully' });
+    }
+  );
+});
+
+// Doctor self availability/profile
+app.get('/api/doctors/me', authenticateToken, (req, res) => {
+  if (req.user.role !== 'doctor') {
+    return res.status(403).json({ error: 'Doctor access required' });
+  }
+
+  const lookupByEmail = (name, email) => {
+    db.get(
+      `SELECT d.*, h.name as hospital_name
+       FROM doctors d
+       LEFT JOIN hospitals h ON d.hospital_id = h.id
+       WHERE d.email = ?`,
+      [email],
+      (err, row) => {
+        if (err) return res.status(400).json({ error: err.message });
+        if (row) return res.json(row);
+
+        // Backfill profile for older doctor users that do not yet have doctors row.
+        db.run(
+          `INSERT INTO doctors (name, email, status, availability_status)
+           VALUES (?, ?, 'active', 'available')`,
+          [name, email],
+          function(insertErr) {
+            if (insertErr) return res.status(400).json({ error: insertErr.message });
+            db.get(
+              `SELECT d.*, h.name as hospital_name
+               FROM doctors d
+               LEFT JOIN hospitals h ON d.hospital_id = h.id
+               WHERE d.id = ?`,
+              [this.lastID],
+              (fetchErr, createdRow) => {
+                if (fetchErr) return res.status(400).json({ error: fetchErr.message });
+                res.json(createdRow);
+              }
+            );
+          }
+        );
+      }
+    );
+  };
+
+  if (req.user.email) {
+    const fallbackName = req.user.email.split('@')[0] || 'Doctor';
+    return lookupByEmail(fallbackName, req.user.email);
+  }
+
+  db.get('SELECT id, name, email FROM users WHERE id = ?', [req.user.userId], (uErr, userRow) => {
+    if (uErr) return res.status(400).json({ error: uErr.message });
+    if (!userRow) return res.status(404).json({ error: 'Doctor profile not found' });
+    lookupByEmail(userRow.name, userRow.email);
+  });
+});
+
+app.put('/api/doctors/me/availability', authenticateToken, (req, res) => {
+  if (req.user.role !== 'doctor') {
+    return res.status(403).json({ error: 'Doctor access required' });
+  }
+
+  const { status, availability_status, schedule } = req.body;
+  if (!availability_status) {
+    return res.status(400).json({ error: 'availability_status is required' });
+  }
+
+  const updateByEmail = (name, email) => {
+    db.run(
+      `UPDATE doctors
+       SET status = COALESCE(?, status),
+           availability_status = ?,
+           schedule = COALESCE(?, schedule)
+       WHERE email = ?`,
+      [status || null, availability_status, schedule || null, email],
+      function(err) {
+        if (err) return res.status(400).json({ error: err.message });
+        if (this.changes > 0) {
+          return res.json({ message: 'Availability updated successfully' });
+        }
+
+        db.run(
+          `INSERT INTO doctors (name, email, status, availability_status, schedule)
+           VALUES (?, ?, ?, ?, ?)`,
+          [name, email, status || 'active', availability_status, schedule || null],
+          function(insertErr) {
+            if (insertErr) return res.status(400).json({ error: insertErr.message });
+            res.json({ message: 'Availability updated successfully' });
+          }
+        );
+      }
+    );
+  };
+
+  if (req.user.email) {
+    const fallbackName = req.user.email.split('@')[0] || 'Doctor';
+    return updateByEmail(fallbackName, req.user.email);
+  }
+
+  db.get('SELECT name, email FROM users WHERE id = ?', [req.user.userId], (uErr, userRow) => {
+    if (uErr) return res.status(400).json({ error: uErr.message });
+    if (!userRow) return res.status(404).json({ error: 'Doctor profile not found' });
+    updateByEmail(userRow.name, userRow.email);
+  });
+});
+
 // Blood donations
 app.get('/api/blood-donations', authenticateToken, (req, res) => {
   const userId = req.user.userId;
@@ -93,13 +217,29 @@ app.get('/api/blood-donations', authenticateToken, (req, res) => {
        LEFT JOIN users u ON bd.donor_id = u.id 
        LEFT JOIN hospitals h ON bd.hospital_id = h.id
        ORDER BY bd.created_at DESC`
-    : `SELECT bd.*, h.name as hospital_name 
-       FROM blood_donations bd 
-       LEFT JOIN hospitals h ON bd.hospital_id = h.id
-       WHERE bd.donor_id = ?
-       ORDER BY bd.created_at DESC`;
-  
-  const params = req.user.role === 'admin' ? [] : [userId];
+    : req.user.role === 'doctor'
+      ? `SELECT bd.*, u.name as donor_name, h.name as hospital_name
+         FROM blood_donations bd
+         LEFT JOIN users u ON bd.donor_id = u.id
+         LEFT JOIN hospitals h ON bd.hospital_id = h.id
+         WHERE bd.hospital_id = (
+           SELECT d.hospital_id
+           FROM doctors d
+           WHERE d.email = (SELECT u.email FROM users u WHERE u.id = ?)
+         )
+         ORDER BY bd.created_at DESC`
+      : `SELECT bd.*, u.name as donor_name, h.name as hospital_name 
+         FROM blood_donations bd 
+         LEFT JOIN users u ON bd.donor_id = u.id 
+         LEFT JOIN hospitals h ON bd.hospital_id = h.id
+         WHERE bd.donor_id = ?
+         ORDER BY bd.created_at DESC`;
+
+  const params = req.user.role === 'admin'
+    ? []
+    : req.user.role === 'doctor'
+      ? [userId]
+      : [userId];
   
   db.all(query, params, (err, rows) => {
     if (err) return res.status(400).json({ error: err.message });
@@ -116,13 +256,29 @@ app.get('/api/blood-requests', authenticateToken, (req, res) => {
        LEFT JOIN users u ON br.requester_id = u.id 
        LEFT JOIN hospitals h ON br.hospital_id = h.id
        ORDER BY br.created_at DESC`
-    : `SELECT br.*, h.name as hospital_name 
-       FROM blood_requests br 
-       LEFT JOIN hospitals h ON br.hospital_id = h.id
-       WHERE br.requester_id = ?
-       ORDER BY br.created_at DESC`;
+    : req.user.role === 'doctor'
+      ? `SELECT br.*, u.name as requester_name, h.name as hospital_name
+         FROM blood_requests br
+         LEFT JOIN users u ON br.requester_id = u.id
+         LEFT JOIN hospitals h ON br.hospital_id = h.id
+         WHERE br.hospital_id = (
+           SELECT d.hospital_id
+           FROM doctors d
+           WHERE d.email = (SELECT u.email FROM users u WHERE u.id = ?)
+         )
+         ORDER BY br.created_at DESC`
+      : `SELECT br.*, u.name as requester_name, h.name as hospital_name 
+         FROM blood_requests br 
+         LEFT JOIN users u ON br.requester_id = u.id 
+         LEFT JOIN hospitals h ON br.hospital_id = h.id
+         WHERE br.requester_id = ?
+         ORDER BY br.created_at DESC`;
   
-  const params = req.user.role === 'admin' ? [] : [userId];
+  const params = req.user.role === 'admin'
+    ? []
+    : req.user.role === 'doctor'
+      ? [userId]
+      : [userId];
   
   db.all(query, params, (err, rows) => {
     if (err) return res.status(400).json({ error: err.message });
@@ -275,6 +431,32 @@ app.get('/api/dashboard/stats', authenticateToken, (req, res) => {
         
         db.get('SELECT COUNT(*) as count FROM hospitals', (err, row) => {
           stats.totalHospitals = row ? row.count : 0;
+          res.json(stats);
+        });
+      });
+    });
+  });
+});
+
+// Public dashboard stats (no auth) for home page
+app.get('/api/dashboard/public-stats', (req, res) => {
+  const stats = {};
+
+  db.get('SELECT COUNT(*) as count FROM users WHERE role = "donor"', (err, row) => {
+    if (err) return res.status(400).json({ error: err.message });
+    stats.totalDonors = row ? row.count : 0;
+
+    db.get('SELECT COUNT(*) as count FROM blood_donations', (err2, row2) => {
+      if (err2) return res.status(400).json({ error: err2.message });
+      stats.totalDonations = row2 ? row2.count : 0;
+
+      db.get('SELECT COUNT(*) as count FROM blood_requests WHERE status = "pending"', (err3, row3) => {
+        if (err3) return res.status(400).json({ error: err3.message });
+        stats.pendingRequests = row3 ? row3.count : 0;
+
+        db.get('SELECT COUNT(*) as count FROM hospitals', (err4, row4) => {
+          if (err4) return res.status(400).json({ error: err4.message });
+          stats.totalHospitals = row4 ? row4.count : 0;
           res.json(stats);
         });
       });

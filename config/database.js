@@ -7,6 +7,7 @@ const initializeDatabase = () => {
 
   // Drop existing tables to ensure clean data
   db.serialize(() => {
+    db.run(`DROP TABLE IF EXISTS doctor_requests`);
     db.run(`DROP TABLE IF EXISTS organ_requests`);
     db.run(`DROP TABLE IF EXISTS organ_donations`);
     db.run(`DROP TABLE IF EXISTS blood_inventory`);
@@ -54,8 +55,25 @@ const initializeDatabase = () => {
       hospital_id INTEGER,
       license_number TEXT UNIQUE,
       status TEXT DEFAULT 'active',
+      availability_status TEXT DEFAULT 'available',
+      schedule TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (hospital_id) REFERENCES hospitals (id)
+    )`);
+
+    db.run(`CREATE TABLE doctor_requests (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      requester_id INTEGER NOT NULL,
+      hospital_id INTEGER NOT NULL,
+      topic TEXT DEFAULT 'general',
+      message TEXT NOT NULL,
+      status TEXT DEFAULT 'pending',
+      assigned_doctor_id INTEGER,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      assigned_at DATETIME,
+      FOREIGN KEY (requester_id) REFERENCES users (id),
+      FOREIGN KEY (hospital_id) REFERENCES hospitals (id),
+      FOREIGN KEY (assigned_doctor_id) REFERENCES doctors (id)
     )`);
 
     db.run(`CREATE TABLE blood_donations (

@@ -154,7 +154,24 @@ const insertDummyData = async (db) => {
     // Wardha District
     ['Dr. Kavita Gaikwad', 'dr.gaikwad@wardhahosp.gov.in', '9876543227', 'Pediatric Surgery', 19, 'MD12352'],
     ['Dr. Vandana Khandare', 'dr.vandana@wardhahosp.gov.in', '9876543247', 'Endocrinology', 19, 'MD12372'],
-    ['Dr. Sanjay Meshram', 'dr.sanjay@sevagram.org', '9876543248', 'Community Medicine', 20, 'MD12373']
+    ['Dr. Sanjay Meshram', 'dr.sanjay@sevagram.org', '9876543248', 'Community Medicine', 20, 'MD12373'],
+
+    // Additional doctors (seeded for richer dashboard dropdowns)
+    ['Dr. Rohan Deshmukh', 'dr.rohan@yavatmalhosp.gov.in', '9876543260', 'Dermatology', 1, 'MD12374'],
+    ['Dr. Ayesha Farooqui', 'dr.ayesha@pusadhosp.com', '9876543261', 'Internal Medicine', 2, 'MD12375'],
+    ['Dr. Nitin Joshi', 'dr.nitin@wanihosp.gov.in', '9876543262', 'Cardiology', 3, 'MD12376'],
+    ['Dr. Prachi Korde', 'dr.prachi@darwha.gov.in', '9876543263', 'Pediatrics', 4, 'MD12377'],
+    ['Dr. Tanvi Patil', 'dr.tanvi@hingolihosp.gov.in', '9876543264', 'Emergency Medicine', 5, 'MD12378'],
+    ['Dr. Rahul Verma', 'dr.rahul@kalamnuri.gov.in', '9876543265', 'Orthopedics', 6, 'MD12379'],
+    ['Dr. Meera Kulkarni', 'dr.meera@basmat.gov.in', '9876543266', 'Nephrology', 7, 'MD12380'],
+    ['Dr. Komal Patil', 'dr.komal@nmc.edu', '9876543267', 'Blood Banking', 8, 'MD12381'],
+    ['Dr. Vikram Shinde', 'dr.vikram@aiimsnagpur.edu.in', '9876543268', 'Transplant Surgery', 9, 'MD12382'],
+    ['Dr. Ishaan Rao', 'dr.ishaan@iggmc.gov.in', '9876543269', 'Hepatology', 10, 'MD12383'],
+    ['Dr. Tanishka Joshi', 'dr.tanishka@akolahosp.gov.in', '9876543270', 'Trauma Surgery', 11, 'MD12384'],
+    ['Dr. Sushant Wankhede', 'dr.sushant@akot.gov.in', '9876543271', 'Ophthalmology', 12, 'MD12385'],
+    ['Dr. Karan Bhosale', 'dr.karan@washimhosp.gov.in', '9876543272', 'Urology', 13, 'MD12386'],
+    ['Dr. Riya Deshmukh', 'dr.riya@karanja.gov.in', '9876543273', 'Dermatology', 14, 'MD12387'],
+    ['Dr. Sofia Raut', 'dr.sofia@amravatimedical.com', '9876543274', 'Cardiology', 15, 'MD12388']
   ];
 
   doctors.forEach(doctor => {
@@ -423,6 +440,22 @@ const insertDummyData = async (db) => {
     db.run('INSERT INTO organ_requests (requester_id, hospital_id, organ_type, urgency, reason, status, requested_date, fulfilled_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', request);
   });
 
+  // Insert doctor assistance requests (user -> admin -> doctor)
+  const doctorRequests = [
+    [5, 1, 'blood', 'Need consultation for repeated low hemoglobin reports', 'pending', null, null],
+    [6, 2, 'organ', 'Need guidance about kidney donor eligibility in family', 'assigned', 2, '2024-03-18 10:30:00'],
+    [13, 5, 'general', 'Post donation weakness, need doctor advice', 'assigned', 7, '2024-03-19 14:10:00'],
+    [20, 8, 'blood', 'Requesting urgent review for cross-match issue', 'pending', null, null],
+    [29, 15, 'organ', 'Want transplant follow-up consultation timeline', 'assigned', 23, '2024-03-20 11:45:00']
+  ];
+
+  doctorRequests.forEach(req => {
+    db.run(
+      'INSERT INTO doctor_requests (requester_id, hospital_id, topic, message, status, assigned_doctor_id, assigned_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      req
+    );
+  });
+
   console.log('✅ Comprehensive dummy data inserted successfully');
   console.log('📊 Maharashtra Vidarbha Region Data:');
   console.log('   - 20 hospitals (Yavatmal, Hingoli, Nagpur, Akola, Washim, Amravati, Buldhana, Wardha)');
@@ -433,6 +466,7 @@ const insertDummyData = async (db) => {
   console.log('   - 41 blood inventory items');
   console.log('   - 23 organ donations');
   console.log('   - 21 organ requests');
+  console.log('   - 5 doctor assistance requests');
 };
 
 module.exports = { insertDummyData };

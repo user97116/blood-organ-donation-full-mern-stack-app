@@ -9,6 +9,7 @@ function AdminPanel() {
   const [users, setUsers] = useState([]);
   const [hospitals, setHospitals] = useState([]);
   const [doctors, setDoctors] = useState([]);
+  const [doctorRequests, setDoctorRequests] = useState([]);
   const [donations, setDonations] = useState([]);
   const [requests, setRequests] = useState([]);
   const [organDonations, setOrganDonations] = useState([]);
@@ -24,7 +25,7 @@ function AdminPanel() {
     setLoading(true);
     try {
       console.log('Fetching admin data...');
-      const [statsRes, usersRes, hospitalsRes, doctorsRes, donationsRes, requestsRes, organDonationsRes, organRequestsRes, inventoryRes] = await Promise.all([
+      const [statsRes, usersRes, hospitalsRes, doctorsRes, donationsRes, requestsRes, organDonationsRes, organRequestsRes, inventoryRes, doctorRequestsRes] = await Promise.all([
         axios.get(`${API_URL}/dashboard/stats`),
         axios.get(`${API_URL}/users`),
         axios.get(`${API_URL}/hospitals`),
@@ -33,7 +34,8 @@ function AdminPanel() {
         axios.get(`${API_URL}/blood-requests`),
         axios.get(`${API_URL}/organ-donations`),
         axios.get(`${API_URL}/organ-requests`),
-        axios.get(`${API_URL}/blood-inventory`)
+        axios.get(`${API_URL}/blood-inventory`),
+        axios.get(`${API_URL}/doctor-requests`)
       ]);
       
       console.log('Hospitals:', hospitalsRes.data.length);
@@ -49,6 +51,7 @@ function AdminPanel() {
       setOrganDonations(organDonationsRes.data);
       setOrganRequests(organRequestsRes.data);
       setInventory(inventoryRes.data);
+      setDoctorRequests(doctorRequestsRes.data);
       
       console.log('Data loaded successfully');
     } catch (error) {
@@ -65,9 +68,6 @@ function AdminPanel() {
       <div className="admin-header">
         <h1>Admin Panel</h1>
         <p>Blood Bank Management System</p>
-        <div style={{ background: '#f0f0f0', padding: '10px', margin: '10px 0', borderRadius: '5px' }}>
-          <strong>Debug Info:</strong> Hospitals: {hospitals.length} | Doctors: {doctors.length} | Users: {users.length}
-        </div>
       </div>
 
       <div className="admin-tabs">
@@ -113,6 +113,12 @@ function AdminPanel() {
         >
           Blood Requests
         </button>
+        <button
+          className={activeTab === 'doctor-requests' ? 'active' : ''}
+          onClick={() => setActiveTab('doctor-requests')}
+        >
+          Doctor Assistance Requests
+        </button>
         <button 
           className={activeTab === 'organ-donations' ? 'active' : ''}
           onClick={() => setActiveTab('organ-donations')}
@@ -141,6 +147,13 @@ function AdminPanel() {
             {activeTab === 'inventory' && <InventoryManagement inventory={inventory} />}
             {activeTab === 'donations' && <DonationManagement donations={donations} />}
             {activeTab === 'requests' && <RequestManagement requests={requests} />}
+            {activeTab === 'doctor-requests' && (
+              <DoctorAssignmentRequests
+                requests={doctorRequests}
+                doctors={doctors}
+                onUpdate={fetchAdminData}
+              />
+            )}
             {activeTab === 'organ-donations' && <OrganDonationManagement organDonations={organDonations} />}
             {activeTab === 'organ-requests' && <OrganRequestManagement organRequests={organRequests} />}
           </>
@@ -177,6 +190,15 @@ function AdminDashboard({ stats }) {
 
 function UserManagement({ users, onUpdate }) {
   const [editingUser, setEditingUser] = useState(null);
+  const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+
+  const filtered = users.filter(u =>
+    (!search || u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase())) &&
+    (!roleFilter || u.role === roleFilter) &&
+    (!statusFilter || u.status === statusFilter)
+  );
 
   const updateUser = async (userId, updates) => {
     try {
@@ -201,7 +223,22 @@ function UserManagement({ users, onUpdate }) {
 
   return (
     <div className="user-management">
-      <h2>User Management</h2>
+      <div className="section-header">
+        <h2>User Management</h2>
+      </div>
+      <div className="admin-filters">
+        <input placeholder="Search name / email..." value={search} onChange={e => setSearch(e.target.value)} />
+        <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)}>
+          <option value="">All Roles</option>
+          <option value="donor">Donor</option>
+          <option value="admin">Admin</option>
+        </select>
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+          <option value="">All Statuses</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
       <div className="table-container">
         <table>
           <thead>
@@ -215,7 +252,7 @@ function UserManagement({ users, onUpdate }) {
             </tr>
           </thead>
           <tbody>
-            {users.map(user => (
+            {filtered.map(user => (
               <tr key={user.id}>
                 <td>{user.name}</td>
                 <td>{user.email}</td>
@@ -426,8 +463,21 @@ function DoctorManagement({ doctors, hospitals, onUpdate }) {
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '', specialization: '', hospital_id: '', license_number: ''
   });
+  const [doctorEdits, setDoctorEdits] = useState({});
 
   console.log('DoctorManagement - doctors count:', doctors.length);
+
+  useEffect(() => {
+    const initial = {};
+    doctors.forEach((doctor) => {
+      initial[doctor.id] = {
+        status: doctor.status || 'active',
+        availability_status: doctor.availability_status || 'available',
+        schedule: doctor.schedule || ''
+      };
+    });
+    setDoctorEdits(initial);
+  }, [doctors]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -438,6 +488,15 @@ function DoctorManagement({ doctors, hospitals, onUpdate }) {
       onUpdate();
     } catch (error) {
       alert('Error adding doctor');
+    }
+  };
+
+  const updateDoctorAvailability = async (doctorId) => {
+    try {
+      await axios.put(`${API_URL}/doctors/${doctorId}`, doctorEdits[doctorId]);
+      onUpdate();
+    } catch (error) {
+      alert(error.response?.data?.error || 'Error updating doctor availability');
     }
   };
 
@@ -520,13 +579,16 @@ function DoctorManagement({ doctors, hospitals, onUpdate }) {
               <th>Specialization</th>
               <th>Hospital</th>
               <th>License</th>
-              <th>Status</th>
+              <th>Account Status</th>
+              <th>Availability</th>
+              <th>Schedule</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {doctors.length === 0 ? (
               <tr>
-                <td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>
+                <td colSpan="10" style={{ textAlign: 'center', padding: '20px' }}>
                   No doctors found. Click "Add Doctor" to add one.
                 </td>
               </tr>
@@ -539,7 +601,57 @@ function DoctorManagement({ doctors, hospitals, onUpdate }) {
                   <td>{doctor.specialization}</td>
                   <td>{doctor.hospital_name}</td>
                   <td>{doctor.license_number}</td>
-                  <td><span className={`status ${doctor.status}`}>{doctor.status}</span></td>
+                  <td>
+                    <select
+                      value={doctorEdits[doctor.id]?.status || 'active'}
+                      onChange={(e) =>
+                        setDoctorEdits((prev) => ({
+                          ...prev,
+                          [doctor.id]: { ...prev[doctor.id], status: e.target.value }
+                        }))
+                      }
+                    >
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
+                  </td>
+                  <td>
+                    <select
+                      value={doctorEdits[doctor.id]?.availability_status || 'available'}
+                      onChange={(e) =>
+                        setDoctorEdits((prev) => ({
+                          ...prev,
+                          [doctor.id]: { ...prev[doctor.id], availability_status: e.target.value }
+                        }))
+                      }
+                    >
+                      <option value="available">Available</option>
+                      <option value="busy">Busy</option>
+                      <option value="on_leave">On Leave</option>
+                      <option value="off_duty">Off Duty</option>
+                    </select>
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      placeholder="e.g. Mon-Fri 9am-5pm"
+                      value={doctorEdits[doctor.id]?.schedule || ''}
+                      onChange={(e) =>
+                        setDoctorEdits((prev) => ({
+                          ...prev,
+                          [doctor.id]: { ...prev[doctor.id], schedule: e.target.value }
+                        }))
+                      }
+                    />
+                  </td>
+                  <td>
+                    <button
+                      className="edit-btn"
+                      onClick={() => updateDoctorAvailability(doctor.id)}
+                    >
+                      Save
+                    </button>
+                  </td>
                 </tr>
               ))
             )}
@@ -571,6 +683,14 @@ function InventoryManagement({ inventory }) {
 }
 
 function DonationManagement({ donations }) {
+  const [statusFilter, setStatusFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
+
+  const filtered = donations.filter(d =>
+    (!statusFilter || d.status === statusFilter) &&
+    (!typeFilter || d.blood_type === typeFilter)
+  );
+
   const updateDonationStatus = async (id, status) => {
     try {
       await axios.put(`${API_URL}/blood-donations/${id}`, { status });
@@ -593,22 +713,28 @@ function DonationManagement({ donations }) {
 
   return (
     <div className="donation-management">
-      <h2>All Blood Donations</h2>
+      <div className="section-header"><h2>All Blood Donations</h2></div>
+      <div className="admin-filters">
+        <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
+          <option value="">All Blood Types</option>
+          {['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(t => <option key={t} value={t}>{t}</option>)}
+        </select>
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+          <option value="">All Statuses</option>
+          <option value="active">Active</option>
+          <option value="expired">Expired</option>
+          <option value="used">Used</option>
+        </select>
+      </div>
       <div className="table-container">
         <table>
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Donor</th>
-              <th>Blood Type</th>
-              <th>Quantity</th>
-              <th>Hospital</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>Date</th><th>Donor</th><th>Blood Type</th><th>Quantity</th><th>Hospital</th><th>Status</th><th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {donations.map(donation => (
+            {filtered.map(donation => (
               <tr key={donation.id}>
                 <td>{new Date(donation.donation_date).toLocaleDateString()}</td>
                 <td>{donation.donor_name}</td>
@@ -644,6 +770,16 @@ function DonationManagement({ donations }) {
 }
 
 function RequestManagement({ requests }) {
+  const [statusFilter, setStatusFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
+  const [urgencyFilter, setUrgencyFilter] = useState('');
+
+  const filtered = requests.filter(r =>
+    (!statusFilter || r.status === statusFilter) &&
+    (!typeFilter || r.blood_type === typeFilter) &&
+    (!urgencyFilter || r.urgency === urgencyFilter)
+  );
+
   const updateRequestStatus = async (id, status) => {
     try {
       await axios.put(`${API_URL}/blood-requests/${id}`, { status });
@@ -666,23 +802,35 @@ function RequestManagement({ requests }) {
 
   return (
     <div className="request-management">
-      <h2>All Blood Requests</h2>
+      <div className="section-header"><h2>All Blood Requests</h2></div>
+      <div className="admin-filters">
+        <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
+          <option value="">All Blood Types</option>
+          {['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(t => <option key={t} value={t}>{t}</option>)}
+        </select>
+        <select value={urgencyFilter} onChange={e => setUrgencyFilter(e.target.value)}>
+          <option value="">All Urgencies</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+          <option value="critical">Critical</option>
+        </select>
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+          <option value="">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="fulfilled">Fulfilled</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
       <div className="table-container">
         <table>
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Requester</th>
-              <th>Blood Type</th>
-              <th>Quantity</th>
-              <th>Urgency</th>
-              <th>Hospital</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>Date</th><th>Requester</th><th>Blood Type</th><th>Quantity</th><th>Urgency</th><th>Hospital</th><th>Status</th><th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {requests.map(request => (
+            {filtered.map(request => (
               <tr key={request.id}>
                 <td>{new Date(request.requested_date).toLocaleDateString()}</td>
                 <td>{request.requester_name}</td>
@@ -719,6 +867,14 @@ function RequestManagement({ requests }) {
 }
 
 function OrganDonationManagement({ organDonations }) {
+  const [statusFilter, setStatusFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
+
+  const filtered = organDonations.filter(d =>
+    (!statusFilter || d.status === statusFilter) &&
+    (!typeFilter || d.organ_type === typeFilter)
+  );
+
   const updateOrganDonationStatus = async (id, status) => {
     try {
       await axios.put(`${API_URL}/organ-donations/${id}`, { status });
@@ -741,21 +897,31 @@ function OrganDonationManagement({ organDonations }) {
 
   return (
     <div className="organ-donation-management">
-      <h2>All Organ Donations</h2>
+      <div className="section-header"><h2>All Organ Donations</h2></div>
+      <div className="admin-filters">
+        <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
+          <option value="">All Organs</option>
+          <option value="heart">Heart</option>
+          <option value="kidney">Kidney</option>
+          <option value="eye">Eye</option>
+        </select>
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+          <option value="">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="eligible">Eligible</option>
+          <option value="completed">Completed</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
       <div className="table-container">
         <table>
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Donor</th>
-              <th>Organ Type</th>
-              <th>Hospital</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>Date</th><th>Donor</th><th>Organ Type</th><th>Hospital</th><th>Status</th><th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {organDonations.map(donation => (
+            {filtered.map(donation => (
               <tr key={donation.id}>
                 <td>{donation.donation_date ? new Date(donation.donation_date).toLocaleDateString() : 'Pending'}</td>
                 <td>{donation.donor_name}</td>
@@ -791,6 +957,16 @@ function OrganDonationManagement({ organDonations }) {
 }
 
 function OrganRequestManagement({ organRequests }) {
+  const [statusFilter, setStatusFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
+  const [urgencyFilter, setUrgencyFilter] = useState('');
+
+  const filtered = organRequests.filter(r =>
+    (!statusFilter || r.status === statusFilter) &&
+    (!typeFilter || r.organ_type === typeFilter) &&
+    (!urgencyFilter || r.urgency === urgencyFilter)
+  );
+
   const updateOrganRequestStatus = async (id, status) => {
     try {
       await axios.put(`${API_URL}/organ-requests/${id}`, { status });
@@ -813,22 +989,37 @@ function OrganRequestManagement({ organRequests }) {
 
   return (
     <div className="organ-request-management">
-      <h2>All Organ Requests</h2>
+      <div className="section-header"><h2>All Organ Requests</h2></div>
+      <div className="admin-filters">
+        <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
+          <option value="">All Organs</option>
+          <option value="heart">Heart</option>
+          <option value="kidney">Kidney</option>
+          <option value="eye">Eye</option>
+        </select>
+        <select value={urgencyFilter} onChange={e => setUrgencyFilter(e.target.value)}>
+          <option value="">All Urgencies</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+          <option value="critical">Critical</option>
+        </select>
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+          <option value="">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="fulfilled">Fulfilled</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
       <div className="table-container">
         <table>
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Requester</th>
-              <th>Organ Type</th>
-              <th>Urgency</th>
-              <th>Hospital</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>Date</th><th>Requester</th><th>Organ Type</th><th>Urgency</th><th>Hospital</th><th>Status</th><th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {organRequests.map(request => (
+            {filtered.map(request => (
               <tr key={request.id}>
                 <td>{new Date(request.requested_date).toLocaleDateString()}</td>
                 <td>{request.requester_name}</td>
@@ -856,6 +1047,93 @@ function OrganRequestManagement({ organRequests }) {
                 </td>
               </tr>
             ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function DoctorAssignmentRequests({ requests, doctors, onUpdate }) {
+  const [statusFilter, setStatusFilter] = useState('');
+
+  const filtered = requests.filter(r => !statusFilter || r.status === statusFilter);
+
+  const assignDoctor = async (requestId, doctorId) => {
+    try {
+      await axios.put(`${API_URL}/doctor-requests/${requestId}/assign`, { doctor_id: doctorId });
+      onUpdate();
+    } catch (error) {
+      alert(error.response?.data?.error || 'Error assigning doctor');
+    }
+  };
+
+  return (
+    <div className="doctor-assignment-requests">
+      <div className="section-header">
+        <h2>Doctor Assistance Requests</h2>
+      </div>
+
+      <div className="admin-filters">
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+          <option value="">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="assigned">Assigned</option>
+        </select>
+      </div>
+
+      <div className="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Requester</th>
+              <th>Hospital</th>
+              <th>Topic</th>
+              <th>Message</th>
+              <th>Status</th>
+              <th>Assign Doctor</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.length > 0 ? (
+              filtered.map(r => {
+                const availableDoctors = doctors.filter(d => d.hospital_id === r.hospital_id);
+                return (
+                  <tr key={r.id}>
+                    <td>{new Date(r.created_at).toLocaleDateString()}</td>
+                    <td>{r.requester_name || '—'}</td>
+                    <td>{r.hospital_name || '—'}</td>
+                    <td>{r.topic || '—'}</td>
+                    <td style={{ maxWidth: 280, wordBreak: 'break-word' }}>{r.message}</td>
+                    <td><span className={`status ${r.status}`}>{r.status}</span></td>
+                    <td>
+                      <select
+                        value={r.assigned_doctor_id || ''}
+                        onChange={(e) => {
+                          const doctorId = e.target.value;
+                          if (!doctorId) return;
+                          assignDoctor(r.id, doctorId);
+                        }}
+                      >
+                        <option value="">Select doctor</option>
+                        {availableDoctors.map(d => (
+                          <option key={d.id} value={d.id}>
+                            {d.name} ({d.specialization || '—'})
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>
+                  No doctor assistance requests found.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
