@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import axios from 'axios';
-import { Login, Register, AdminRegister, DoctorRegister } from './Auth';
+import { Login, Register, AdminRegister } from './Auth';
 import Dashboard from './Dashboard';
 import AdminPanel from './AdminPanel';
 import ChatAssistant from './ChatAssistant';
@@ -57,7 +57,6 @@ function App() {
           <Route path="/login" element={!user ? <Login setUser={setUser} /> : <Navigate to="/dashboard" />} />
           <Route path="/register" element={!user ? <Register setUser={setUser} /> : <Navigate to="/dashboard" />} />
           <Route path="/admin/register" element={!user ? <AdminRegister setUser={setUser} /> : <Navigate to="/dashboard" />} />
-          <Route path="/doctor/register" element={!user ? <DoctorRegister setUser={setUser} /> : <Navigate to="/dashboard" />} />
           <Route path="/dashboard" element={user ? <Dashboard user={user} /> : <Navigate to="/login" />} />
           <Route path="/admin" element={user?.role === 'admin' ? <AdminPanel /> : <Navigate to="/dashboard" />} />
           <Route path="/chat" element={user ? <ChatAssistant /> : <Navigate to="/login" />} />
@@ -90,7 +89,6 @@ function Navbar({ user, logout }) {
           <>
             <Link to="/login">Login</Link>
             <Link to="/register">Register</Link>
-            <Link to="/doctor/register">Doctor Register</Link>
             <Link to="/admin/register">Admin Register</Link>
           </>
         )}

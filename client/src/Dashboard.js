@@ -11,7 +11,6 @@ function Dashboard({ user }) {
   const [organDonations, setOrganDonations] = useState([]);
   const [organRequests, setOrganRequests] = useState([]);
   const [hospitals, setHospitals] = useState([]);
-  const [doctorRequests, setDoctorRequests] = useState([]);
   const [doctorProfile, setDoctorProfile] = useState(null);
 
   useEffect(() => {
@@ -24,14 +23,13 @@ function Dashboard({ user }) {
     try {
       const isAdmin = user.role === 'admin';
       
-      const [statsRes, donationsRes, requestsRes, organDonationsRes, organRequestsRes, hospitalsRes, doctorRequestsRes] = await Promise.all([
+      const [statsRes, donationsRes, requestsRes, organDonationsRes, organRequestsRes, hospitalsRes] = await Promise.all([
         axios.get(`${API_URL}/dashboard/stats`),
         axios.get(`${API_URL}/blood-donations`),
         axios.get(`${API_URL}/blood-requests`),
         axios.get(`${API_URL}/organ-donations`),
         axios.get(`${API_URL}/organ-requests`),
-        axios.get(`${API_URL}/hospitals`),
-        axios.get(`${API_URL}/doctor-requests`)
+        axios.get(`${API_URL}/hospitals`)
       ]);
       
       setStats(statsRes.data);
@@ -40,7 +38,6 @@ function Dashboard({ user }) {
       setOrganDonations(organDonationsRes.data);
       setOrganRequests(organRequestsRes.data);
       setHospitals(hospitalsRes.data);
-      setDoctorRequests(doctorRequestsRes.data);
 
       if (user.role === 'doctor') {
         try {
@@ -81,7 +78,6 @@ function Dashboard({ user }) {
             <button className={activeTab === 'organ-donate' ? 'active' : ''} onClick={() => setActiveTab('organ-donate')}>Donate Organ</button>
             <button className={activeTab === 'request' ? 'active' : ''} onClick={() => setActiveTab('request')}>Request Blood</button>
             <button className={activeTab === 'organ-request' ? 'active' : ''} onClick={() => setActiveTab('organ-request')}>Request Organ</button>
-            <button className={activeTab === 'doctor-help' ? 'active' : ''} onClick={() => setActiveTab('doctor-help')}>Doctor Assistance</button>
           </>
         )}
         {user.role === 'doctor' && (
@@ -90,7 +86,6 @@ function Dashboard({ user }) {
             <button className={activeTab === 'all-requests' ? 'active' : ''} onClick={() => setActiveTab('all-requests')}>Blood Requests</button>
             <button className={activeTab === 'organ-donations' ? 'active' : ''} onClick={() => setActiveTab('organ-donations')}>Organ Donations</button>
             <button className={activeTab === 'organ-requests' ? 'active' : ''} onClick={() => setActiveTab('organ-requests')}>Organ Requests</button>
-            <button className={activeTab === 'doctor-requests' ? 'active' : ''} onClick={() => setActiveTab('doctor-requests')}>My Doctor Requests</button>
             <button className={activeTab === 'availability' ? 'active' : ''} onClick={() => setActiveTab('availability')}>My Availability</button>
           </>
         )}
@@ -108,14 +103,6 @@ function Dashboard({ user }) {
         {activeTab === 'all-requests' && <DoctorView data={requests} type="blood-requests" />}
         {activeTab === 'organ-donations' && <DoctorView data={organDonations} type="organ-donations" />}
         {activeTab === 'organ-requests' && <DoctorView data={organRequests} type="organ-requests" />}
-        {activeTab === 'doctor-help' && (
-          <DoctorHelpRequest
-            hospitals={hospitals}
-            requests={doctorRequests}
-            onSuccess={fetchDashboardData}
-          />
-        )}
-        {activeTab === 'doctor-requests' && <DoctorRequestsTable requests={doctorRequests} />}
         {activeTab === 'availability' && user.role === 'doctor' && (
           <DoctorAvailability profile={doctorProfile} onSuccess={fetchDashboardData} />
         )}
@@ -190,160 +177,6 @@ function DoctorView({ data, type }) {
             ))}
           </tbody>
         </table>
-      </div>
-    </div>
-  );
-}
-
-function DoctorRequestsTable({ requests }) {
-  return (
-    <div className="doctor-requests">
-      <div className="section-header" style={{ marginBottom: '1rem' }}>
-        <h3 style={{ fontSize: '1rem', color: '#222' }}>My Doctor Requests</h3>
-      </div>
-      <div className="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Requester</th>
-              <th>Hospital</th>
-              <th>Topic</th>
-              <th>Message</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {requests.length > 0 ? (
-              requests.map(r => (
-                <tr key={r.id}>
-                  <td>{new Date(r.created_at).toLocaleDateString()}</td>
-                  <td>{r.requester_name || '—'}</td>
-                  <td>{r.hospital_name || '—'}</td>
-                  <td>{r.topic || '—'}</td>
-                  <td style={{ maxWidth: 280, wordBreak: 'break-word' }}>{r.message}</td>
-                  <td><span className={`status ${r.status}`}>{r.status}</span></td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>
-                  No doctor requests assigned yet.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-function DoctorHelpRequest({ hospitals, requests, onSuccess }) {
-  const [formData, setFormData] = useState({
-    hospital_id: '',
-    topic: 'general',
-    message: ''
-  });
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-
-  const submit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage('');
-    try {
-      await axios.post(`${API_URL}/doctor-requests`, formData);
-      setMessage('Request submitted successfully!');
-      setFormData({ hospital_id: '', topic: 'general', message: '' });
-      onSuccess();
-    } catch (error) {
-      setMessage(error.response?.data?.error || 'Error submitting request');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="doctor-help">
-      <div className="donate-section">
-        <h2>Doctor Assistance Request</h2>
-        {message && (
-          <div className={message.includes('success') ? 'success-message' : 'error-message'}>
-            {message}
-          </div>
-        )}
-        <form onSubmit={submit} className="donation-form">
-          <div className="form-group">
-            <label>Hospital *</label>
-            <select
-              value={formData.hospital_id}
-              onChange={(e) => setFormData({ ...formData, hospital_id: e.target.value })}
-              required
-            >
-              <option value="">Select Hospital</option>
-              {hospitals.map(h => (
-                <option key={h.id} value={h.id}>{h.name}</option>
-              ))}
-            </select>
-          </div>
-          <div className="form-group">
-            <label>Topic</label>
-            <select
-              value={formData.topic}
-              onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
-            >
-              <option value="general">General</option>
-              <option value="blood">Blood</option>
-              <option value="organ">Organ</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label>Request Details *</label>
-            <textarea
-              value={formData.message}
-              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-              rows="4"
-              required
-              placeholder="Describe what you need help with..."
-            />
-          </div>
-          <button type="submit" disabled={loading} className="submit-btn">
-            {loading ? 'Submitting...' : 'Submit to Admin'}
-          </button>
-        </form>
-      </div>
-
-      <div className="history-section" style={{ marginTop: '1.5rem' }}>
-        <h3>Your Submitted Requests</h3>
-        <div className="history-table">
-          {requests.length > 0 ? (
-            <table>
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Hospital</th>
-                  <th>Topic</th>
-                  <th>Message</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {requests.map(r => (
-                  <tr key={r.id}>
-                    <td>{new Date(r.created_at).toLocaleDateString()}</td>
-                    <td>{r.hospital_name || '—'}</td>
-                    <td>{r.topic || '—'}</td>
-                    <td style={{ maxWidth: 280, wordBreak: 'break-word' }}>{r.message}</td>
-                    <td><span className={`status ${r.status}`}>{r.status}</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p>No requests submitted yet.</p>
-          )}
-        </div>
       </div>
     </div>
   );

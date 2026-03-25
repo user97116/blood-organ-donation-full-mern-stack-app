@@ -9,7 +9,6 @@ function AdminPanel() {
   const [users, setUsers] = useState([]);
   const [hospitals, setHospitals] = useState([]);
   const [doctors, setDoctors] = useState([]);
-  const [doctorRequests, setDoctorRequests] = useState([]);
   const [donations, setDonations] = useState([]);
   const [requests, setRequests] = useState([]);
   const [organDonations, setOrganDonations] = useState([]);
@@ -25,7 +24,7 @@ function AdminPanel() {
     setLoading(true);
     try {
       console.log('Fetching admin data...');
-      const [statsRes, usersRes, hospitalsRes, doctorsRes, donationsRes, requestsRes, organDonationsRes, organRequestsRes, inventoryRes, doctorRequestsRes] = await Promise.all([
+      const [statsRes, usersRes, hospitalsRes, doctorsRes, donationsRes, requestsRes, organDonationsRes, organRequestsRes, inventoryRes] = await Promise.all([
         axios.get(`${API_URL}/dashboard/stats`),
         axios.get(`${API_URL}/users`),
         axios.get(`${API_URL}/hospitals`),
@@ -34,8 +33,7 @@ function AdminPanel() {
         axios.get(`${API_URL}/blood-requests`),
         axios.get(`${API_URL}/organ-donations`),
         axios.get(`${API_URL}/organ-requests`),
-        axios.get(`${API_URL}/blood-inventory`),
-        axios.get(`${API_URL}/doctor-requests`)
+        axios.get(`${API_URL}/blood-inventory`)
       ]);
       
       console.log('Hospitals:', hospitalsRes.data.length);
@@ -51,7 +49,6 @@ function AdminPanel() {
       setOrganDonations(organDonationsRes.data);
       setOrganRequests(organRequestsRes.data);
       setInventory(inventoryRes.data);
-      setDoctorRequests(doctorRequestsRes.data);
       
       console.log('Data loaded successfully');
     } catch (error) {
@@ -113,12 +110,6 @@ function AdminPanel() {
         >
           Blood Requests
         </button>
-        <button
-          className={activeTab === 'doctor-requests' ? 'active' : ''}
-          onClick={() => setActiveTab('doctor-requests')}
-        >
-          Doctor Assistance Requests
-        </button>
         <button 
           className={activeTab === 'organ-donations' ? 'active' : ''}
           onClick={() => setActiveTab('organ-donations')}
@@ -147,13 +138,6 @@ function AdminPanel() {
             {activeTab === 'inventory' && <InventoryManagement inventory={inventory} />}
             {activeTab === 'donations' && <DonationManagement donations={donations} />}
             {activeTab === 'requests' && <RequestManagement requests={requests} />}
-            {activeTab === 'doctor-requests' && (
-              <DoctorAssignmentRequests
-                requests={doctorRequests}
-                doctors={doctors}
-                onUpdate={fetchAdminData}
-              />
-            )}
             {activeTab === 'organ-donations' && <OrganDonationManagement organDonations={organDonations} />}
             {activeTab === 'organ-requests' && <OrganRequestManagement organRequests={organRequests} />}
           </>
@@ -1047,93 +1031,6 @@ function OrganRequestManagement({ organRequests }) {
                 </td>
               </tr>
             ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-function DoctorAssignmentRequests({ requests, doctors, onUpdate }) {
-  const [statusFilter, setStatusFilter] = useState('');
-
-  const filtered = requests.filter(r => !statusFilter || r.status === statusFilter);
-
-  const assignDoctor = async (requestId, doctorId) => {
-    try {
-      await axios.put(`${API_URL}/doctor-requests/${requestId}/assign`, { doctor_id: doctorId });
-      onUpdate();
-    } catch (error) {
-      alert(error.response?.data?.error || 'Error assigning doctor');
-    }
-  };
-
-  return (
-    <div className="doctor-assignment-requests">
-      <div className="section-header">
-        <h2>Doctor Assistance Requests</h2>
-      </div>
-
-      <div className="admin-filters">
-        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-          <option value="">All Statuses</option>
-          <option value="pending">Pending</option>
-          <option value="assigned">Assigned</option>
-        </select>
-      </div>
-
-      <div className="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Requester</th>
-              <th>Hospital</th>
-              <th>Topic</th>
-              <th>Message</th>
-              <th>Status</th>
-              <th>Assign Doctor</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.length > 0 ? (
-              filtered.map(r => {
-                const availableDoctors = doctors.filter(d => d.hospital_id === r.hospital_id);
-                return (
-                  <tr key={r.id}>
-                    <td>{new Date(r.created_at).toLocaleDateString()}</td>
-                    <td>{r.requester_name || '—'}</td>
-                    <td>{r.hospital_name || '—'}</td>
-                    <td>{r.topic || '—'}</td>
-                    <td style={{ maxWidth: 280, wordBreak: 'break-word' }}>{r.message}</td>
-                    <td><span className={`status ${r.status}`}>{r.status}</span></td>
-                    <td>
-                      <select
-                        value={r.assigned_doctor_id || ''}
-                        onChange={(e) => {
-                          const doctorId = e.target.value;
-                          if (!doctorId) return;
-                          assignDoctor(r.id, doctorId);
-                        }}
-                      >
-                        <option value="">Select doctor</option>
-                        {availableDoctors.map(d => (
-                          <option key={d.id} value={d.id}>
-                            {d.name} ({d.specialization || '—'})
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                  </tr>
-                );
-              })
-            ) : (
-              <tr>
-                <td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>
-                  No doctor assistance requests found.
-                </td>
-              </tr>
-            )}
           </tbody>
         </table>
       </div>

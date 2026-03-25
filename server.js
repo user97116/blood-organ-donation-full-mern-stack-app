@@ -34,7 +34,6 @@ app.use('/api/organ-requests', require('./routes/organ_requests'));
 app.use('/api/organ-inventory', require('./routes/organ_inventory'));
 app.use('/api/medical-evaluation', require('./routes/medical_evaluation'));
 app.use('/api/sop-acceptance', require('./routes/sop_acceptance'));
-app.use('/api/doctor-requests', require('./routes/doctor_requests'));
 app.use('/api', require('./routes/chat'));
 
 // Users management (admin)

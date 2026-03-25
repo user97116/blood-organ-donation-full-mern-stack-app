@@ -62,55 +62,6 @@ router.post('/admin/register', async (req, res) => {
   }
 });
 
-// Doctor register
-router.post('/doctor/register', async (req, res) => {
-  try {
-    const { name, email, password, phone, specialization, license_number, hospital_id } = req.body;
-    if (!name || !email || !password || !hospital_id) {
-      return res.status(400).json({ error: 'Name, email, password and hospital are required' });
-    }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    req.db.run(
-      'INSERT INTO users (name, email, password, phone, role, status) VALUES (?, ?, ?, ?, ?, ?)',
-      [name, email, hashedPassword, phone, 'doctor', 'active'],
-      function(err) {
-        if (err) {
-          if (err.message.includes('UNIQUE constraint failed')) return res.status(400).json({ error: 'Email already exists' });
-          return res.status(400).json({ error: err.message });
-        }
-        const createdUserId = this.lastID;
-        // Link to (or create) doctors table record so doctor dashboards work.
-        req.db.run(
-          `UPDATE doctors
-           SET email = ?, phone = ?, specialization = ?
-           WHERE license_number = ? OR (name = ? AND hospital_id = ?)`,
-          [email, phone, specialization, license_number, name, hospital_id],
-          function (err2) {
-            if (err2) return res.status(400).json({ error: err2.message });
-
-            // If no existing doctors row matched, create one.
-            if (this.changes === 0) {
-              req.db.run(
-                `INSERT INTO doctors (name, email, phone, specialization, hospital_id, license_number)
-                 VALUES (?, ?, ?, ?, ?, ?)`,
-                [name, email, phone, specialization, hospital_id, license_number],
-                function (err3) {
-                  if (err3) return res.status(400).json({ error: err3.message });
-                  res.json({ message: 'Doctor registered successfully', userId: createdUserId });
-                }
-              );
-            } else {
-              res.json({ message: 'Doctor registered successfully', userId: createdUserId });
-            }
-          }
-        );
-      }
-    );
-  } catch (error) {
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
 // Login
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
