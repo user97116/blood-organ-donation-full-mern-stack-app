@@ -10,21 +10,46 @@
 }
 
 .chat-header {
-  padding: 20px;
+  padding: 16px 20px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border-radius: 12px 12px 0 0;
+  flex-shrink: 0;
 }
 
-.chat-header h2 {
-  margin: 0 0 5px 0;
+.chat-header h2 { margin: 0 0 4px 0; }
+.chat-header p  { margin: 0; opacity: 0.9; font-size: 13px; }
+
+/* Quick command chips */
+.chat-commands {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 14px;
+  background: #f8f0ff;
+  border-bottom: 1px solid #e8d8f8;
+  flex-shrink: 0;
 }
 
-.chat-header p {
-  margin: 0;
-  opacity: 0.9;
-  font-size: 14px;
+.cmd-chip {
+  background: white;
+  border: 1.5px solid #c4a8f0;
+  color: #5b21b6;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  white-space: nowrap;
 }
+
+.cmd-chip:hover:not(:disabled) {
+  background: #ede9fe;
+  transform: translateY(-1px);
+}
+
+.cmd-chip:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .chat-messages {
   flex: 1;
@@ -38,31 +63,30 @@
   display: flex;
 }
 
-.message.user {
-  justify-content: flex-end;
-}
-
-.message.assistant {
-  justify-content: flex-start;
-}
+.message.user      { justify-content: flex-end; }
+.message.assistant { justify-content: flex-start; }
 
 .message-content {
-  max-width: 70%;
+  max-width: 72%;
   padding: 12px 16px;
   border-radius: 18px;
   word-wrap: break-word;
   white-space: pre-wrap;
+  font-size: 0.9rem;
+  line-height: 1.55;
 }
 
 .message.user .message-content {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
+  border-bottom-right-radius: 4px;
 }
 
 .message.assistant .message-content {
   background: white;
   color: #333;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-bottom-left-radius: 4px;
 }
 
 .typing {
@@ -72,82 +96,59 @@
 }
 
 .typing span {
-  width: 8px;
-  height: 8px;
+  width: 8px; height: 8px;
   background: #667eea;
   border-radius: 50%;
   animation: typing 1.4s infinite;
 }
-
-.typing span:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.typing span:nth-child(3) {
-  animation-delay: 0.4s;
-}
+.typing span:nth-child(2) { animation-delay: 0.2s; }
+.typing span:nth-child(3) { animation-delay: 0.4s; }
 
 @keyframes typing {
-  0%, 60%, 100% {
-    transform: translateY(0);
-  }
-  30% {
-    transform: translateY(-10px);
-  }
+  0%, 60%, 100% { transform: translateY(0); }
+  30%           { transform: translateY(-10px); }
 }
 
 .chat-input-container {
-  padding: 20px;
+  padding: 14px 20px;
   background: white;
   border-top: 1px solid #e0e0e0;
   display: flex;
-  gap: 12px;
+  gap: 10px;
   border-radius: 0 0 12px 12px;
+  flex-shrink: 0;
 }
 
 .chat-input-container textarea {
   flex: 1;
-  padding: 12px;
+  padding: 10px 16px;
   border: 2px solid #e0e0e0;
   border-radius: 24px;
   resize: none;
   font-family: inherit;
   font-size: 14px;
   outline: none;
-  transition: border-color 0.3s;
+  transition: border-color 0.2s;
 }
 
-.chat-input-container textarea:focus {
-  border-color: #667eea;
-}
+.chat-input-container textarea:focus { border-color: #667eea; }
 
 .chat-input-container button {
-  padding: 12px 28px;
+  padding: 10px 24px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
   border-radius: 24px;
   cursor: pointer;
   font-weight: 600;
-  transition: transform 0.2s;
+  transition: transform 0.15s, opacity 0.15s;
 }
 
-.chat-input-container button:hover:not(:disabled) {
-  transform: translateY(-2px);
-}
-
-.chat-input-container button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+.chat-input-container button:hover:not(:disabled) { transform: translateY(-2px); }
+.chat-input-container button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 @media (max-width: 768px) {
-  .chat-container {
-    margin: 10px;
-    height: calc(100vh - 100px);
-  }
-
-  .message-content {
-    max-width: 85%;
-  }
+  .chat-container { margin: 10px; height: calc(100vh - 100px); }
+  .message-content { max-width: 88%; }
+  .cmd-chip { font-size: 0.7rem; padding: 3px 10px; }
 }
