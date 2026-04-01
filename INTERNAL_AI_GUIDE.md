@@ -43,7 +43,7 @@ Your Blood & Organ Donation system now has an **advanced internal AI assistant**
 
 ### 🔄 Blood Compatibility
 - "O+ compatible" / "O+ donate to"
-- "AB+ receive from"
+- "AB+ receive from"login
 - Works with all blood types
 
 ### 📊 Donor Statistics

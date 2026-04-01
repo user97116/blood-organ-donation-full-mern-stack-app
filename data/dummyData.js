@@ -181,53 +181,60 @@ const insertDummyData = async (db) => {
   // Insert blood donations - Maharashtra Vidarbha Region
   const donations = [
     // Yavatmal District
-    [5, 1, 'A+', 1, '2024-01-15', '2024-02-19', 'active', 'Regular donation - Yavatmal'],
-    [6, 2, 'B-', 2, '2024-01-20', '2024-02-24', 'active', 'First time donor - Pusad'],
-    [7, 1, 'O+', 1, '2024-01-25', '2024-03-01', 'active', 'Repeat donor - Yavatmal'],
-    [8, 2, 'A+', 1, '2024-02-01', '2024-03-08', 'active', 'Community drive - Pusad'],
-    [9, 1, 'O+', 2, '2024-02-05', '2024-03-12', 'active', 'Regular donation - Yavatmal'],
-    [10, 2, 'A+', 1, '2024-02-10', '2024-03-17', 'active', 'Walk-in donation - Pusad'],
-    [11, 3, 'B+', 1, '2024-02-15', '2024-03-22', 'active', 'Scheduled donation - Wani'],
-    [12, 4, 'O-', 1, '2024-02-18', '2024-03-25', 'active', 'Emergency donation - Darwha'],
+    [5, 1, 'A+', 1, '2026-01-15', '2026-02-19', 'active', 'Regular donation - Yavatmal'],
+    [6, 2, 'B-', 2, '2026-01-20', '2026-02-24', 'active', 'First time donor - Pusad'],
+    [7, 1, 'O+', 1, '2026-01-25', '2026-03-01', 'active', 'Repeat donor - Yavatmal'],
+    [8, 2, 'A+', 1, '2026-02-01', '2026-03-08', 'active', 'Community drive - Pusad'],
+    [9, 1, 'O+', 2, '2026-02-05', '2026-03-12', 'active', 'Regular donation - Yavatmal'],
+    [10, 2, 'A+', 1, '2026-02-10', '2026-03-17', 'active', 'Walk-in donation - Pusad'],
+    [11, 3, 'B+', 1, '2026-02-15', '2026-03-22', 'active', 'Scheduled donation - Wani'],
+    [12, 4, 'O-', 1, '2026-02-18', '2026-03-25', 'active', 'Emergency donation - Darwha'],
     
     // Hingoli District
-    [13, 5, 'AB+', 1, '2024-02-20', '2024-03-27', 'active', 'Regular donor - Hingoli'],
-    [14, 6, 'A-', 2, '2024-02-22', '2024-03-29', 'active', 'First time donor - Kalamnuri'],
-    [15, 7, 'O+', 1, '2024-02-25', '2024-04-01', 'active', 'Replacement donation - Basmat'],
-    [16, 5, 'B+', 1, '2024-02-28', '2024-04-04', 'active', 'Community drive - Hingoli'],
-    [17, 6, 'AB-', 2, '2024-03-01', '2024-04-05', 'active', 'Regular donation - Kalamnuri'],
-    [18, 7, 'A-', 1, '2024-03-03', '2024-04-07', 'active', 'Scheduled donation - Basmat'],
+    [13, 5, 'AB+', 1, '2026-02-20', '2026-03-27', 'active', 'Regular donor - Hingoli'],
+    [14, 6, 'A-', 2, '2026-02-22', '2026-03-29', 'active', 'First time donor - Kalamnuri'],
+    [15, 7, 'O+', 1, '2026-02-25', '2026-04-01', 'active', 'Replacement donation - Basmat'],
+    [16, 5, 'B+', 1, '2026-02-28', '2026-04-04', 'active', 'Community drive - Hingoli'],
+    [17, 6, 'AB-', 2, '2026-03-01', '2026-04-05', 'active', 'Regular donation - Kalamnuri'],
+    [18, 7, 'A-', 1, '2026-03-03', '2026-04-07', 'active', 'Scheduled donation - Basmat'],
     
     // Nagpur Division
-    [19, 8, 'B-', 1, '2024-03-05', '2024-04-09', 'active', 'Blood bank donation - Nagpur NMC'],
-    [20, 9, 'O+', 2, '2024-03-07', '2024-04-11', 'active', 'AIIMS donation drive - Nagpur'],
-    [21, 10, 'A+', 1, '2024-03-08', '2024-04-12', 'active', 'Medical college drive - IGGMC'],
-    [22, 8, 'B-', 1, '2024-03-10', '2024-04-14', 'active', 'Regular donor - Nagpur'],
+    [19, 8, 'B-', 1, '2026-03-05', '2026-04-09', 'active', 'Blood bank donation - Nagpur NMC'],
+    [20, 9, 'O+', 2, '2026-03-07', '2026-04-11', 'active', 'AIIMS donation drive - Nagpur'],
+    [21, 10, 'A+', 1, '2026-03-08', '2026-04-12', 'active', 'Medical college drive - IGGMC'],
+    [22, 8, 'B-', 1, '2026-03-10', '2026-04-14', 'active', 'Regular donor - Nagpur'],
     
     // Akola District
-    [23, 11, 'AB+', 1, '2024-03-12', '2024-04-16', 'active', 'Emergency donation - Akola'],
-    [24, 11, 'AB+', 2, '2024-03-14', '2024-04-18', 'active', 'Repeat donor - Akola'],
-    [25, 12, 'B+', 1, '2024-03-15', '2024-04-19', 'active', 'Community drive - Akot'],
+    [23, 11, 'AB+', 1, '2026-03-12', '2026-04-16', 'active', 'Emergency donation - Akola'],
+    [24, 11, 'AB+', 2, '2026-03-14', '2026-04-18', 'active', 'Repeat donor - Akola'],
+    [25, 12, 'B+', 1, '2026-03-15', '2026-04-19', 'active', 'Community drive - Akot'],
     
     // Washim District
-    [26, 13, 'O-', 1, '2024-03-16', '2024-04-20', 'active', 'Regular donation - Washim'],
-    [27, 13, 'O-', 2, '2024-03-18', '2024-04-22', 'active', 'Emergency response - Washim'],
-    [28, 14, 'A-', 1, '2024-03-20', '2024-04-24', 'active', 'Scheduled donation - Karanja'],
+    [26, 13, 'O-', 1, '2026-03-16', '2026-04-20', 'active', 'Regular donation - Washim'],
+    [27, 13, 'O-', 2, '2026-03-18', '2026-04-22', 'active', 'Emergency response - Washim'],
+    [28, 14, 'A-', 1, '2026-03-20', '2026-04-24', 'active', 'Scheduled donation - Karanja'],
     
     // Amravati District
-    [29, 15, 'A-', 1, '2024-03-22', '2024-04-26', 'active', 'Regular donor - Amravati'],
-    [30, 16, 'A-', 2, '2024-03-24', '2024-04-28', 'active', 'Medical college drive - Amravati'],
-    [31, 15, 'O+', 1, '2024-03-25', '2024-04-29', 'active', 'Walk-in donation - Amravati'],
+    [29, 15, 'A-', 1, '2026-03-22', '2026-04-26', 'active', 'Regular donor - Amravati'],
+    [30, 16, 'A-', 2, '2026-03-24', '2026-04-28', 'active', 'Medical college drive - Amravati'],
+    [31, 15, 'O+', 1, '2026-03-25', '2026-04-29', 'active', 'Walk-in donation - Amravati'],
     
     // Buldhana District
-    [32, 17, 'B+', 1, '2024-03-26', '2024-04-30', 'active', 'Community drive - Buldhana'],
-    [33, 17, 'B+', 2, '2024-03-28', '2024-05-02', 'active', 'Regular donor - Buldhana'],
-    [34, 18, 'AB+', 1, '2024-03-29', '2024-05-03', 'active', 'Scheduled donation - Malkapur'],
+    [32, 17, 'B+', 1, '2026-03-26', '2026-04-30', 'active', 'Community drive - Buldhana'],
+    [33, 17, 'B+', 2, '2026-03-28', '2026-05-02', 'active', 'Regular donor - Buldhana'],
+    [34, 18, 'AB+', 1, '2026-03-29', '2026-05-03', 'active', 'Scheduled donation - Malkapur'],
     
     // Wardha District
-    [35, 19, 'AB-', 1, '2024-03-30', '2024-05-04', 'active', 'Regular donation - Wardha'],
-    [36, 19, 'AB-', 2, '2024-04-01', '2024-05-06', 'active', 'Repeat donor - Wardha'],
-    [37, 20, 'O-', 1, '2024-04-02', '2024-05-07', 'active', 'Sevagram health camp - Wardha']
+    [35, 19, 'AB-', 1, '2026-03-30', '2026-05-04', 'active', 'Regular donation - Wardha'],
+    [36, 19, 'AB-', 2, '2026-04-01', '2026-05-06', 'active', 'Repeat donor - Wardha'],
+    [37, 20, 'O-', 1, '2026-04-01', '2026-05-07', 'active', 'Sevagram health camp - Wardha'],
+
+    // Recent 2026 entries (March-April 2026)
+    [5, 1, 'A+', 2, '2026-03-28', '2026-05-02', 'active', 'Recent donation - Yavatmal'],
+    [13, 5, 'AB+', 1, '2026-03-29', '2026-05-03', 'active', 'Recent donation - Hingoli'],
+    [19, 8, 'B-', 2, '2026-03-30', '2026-05-04', 'active', 'Recent donation - Nagpur'],
+    [26, 13, 'O-', 1, '2026-03-31', '2026-05-05', 'active', 'Recent donation - Washim'],
+    [35, 19, 'AB-', 2, '2026-04-01', '2026-05-06', 'active', 'Recent donation - Wardha']
   ];
 
   donations.forEach(donation => {
@@ -237,47 +244,54 @@ const insertDummyData = async (db) => {
   // Insert blood requests - Maharashtra Vidarbha Region
   const requests = [
     // Yavatmal District
-    [5, 1, 'A+', 3, 'high', 'Surgery preparation - Yavatmal', 'pending', '2024-02-20'],
-    [6, 2, 'B-', 2, 'critical', 'Emergency trauma - Pusad', 'fulfilled', '2024-02-18', '2024-02-18'],
-    [7, 1, 'O+', 4, 'critical', 'Multiple trauma patients - Yavatmal', 'fulfilled', '2024-02-19', '2024-02-19'],
-    [8, 2, 'A+', 1, 'medium', 'Routine procedure - Pusad', 'pending', '2024-02-22'],
-    [11, 3, 'B+', 2, 'high', 'Surgical emergency - Wani', 'pending', '2024-02-25'],
+    [5, 1, 'A+', 3, 'high', 'Surgery preparation - Yavatmal', 'pending', '2026-02-20'],
+    [6, 2, 'B-', 2, 'critical', 'Emergency trauma - Pusad', 'fulfilled', '2026-02-18', '2026-02-18'],
+    [7, 1, 'O+', 4, 'critical', 'Multiple trauma patients - Yavatmal', 'fulfilled', '2026-02-19', '2026-02-19'],
+    [8, 2, 'A+', 1, 'medium', 'Routine procedure - Pusad', 'pending', '2026-02-22'],
+    [11, 3, 'B+', 2, 'high', 'Surgical emergency - Wani', 'pending', '2026-02-25'],
     
     // Hingoli District
-    [13, 5, 'AB+', 2, 'low', 'Elective surgery - Hingoli', 'pending', '2024-02-25'],
-    [14, 6, 'A-', 1, 'medium', 'Cancer treatment - Kalamnuri', 'pending', '2024-02-26'],
-    [15, 7, 'O+', 3, 'high', 'Emergency delivery - Basmat', 'fulfilled', '2024-02-23', '2024-02-23'],
-    [16, 5, 'B+', 2, 'medium', 'Orthopedic surgery - Hingoli', 'pending', '2024-02-28'],
+    [13, 5, 'AB+', 2, 'low', 'Elective surgery - Hingoli', 'pending', '2026-02-25'],
+    [14, 6, 'A-', 1, 'medium', 'Cancer treatment - Kalamnuri', 'pending', '2026-02-26'],
+    [15, 7, 'O+', 3, 'high', 'Emergency delivery - Basmat', 'fulfilled', '2026-02-23', '2026-02-23'],
+    [16, 5, 'B+', 2, 'medium', 'Orthopedic surgery - Hingoli', 'pending', '2026-02-28'],
     
     // Nagpur Division
-    [19, 8, 'B-', 3, 'high', 'Cardiac surgery - Nagpur NMC', 'fulfilled', '2024-02-21', '2024-02-21'],
-    [21, 9, 'O+', 5, 'critical', 'Major trauma case - AIIMS Nagpur', 'pending', '2024-03-01'],
-    [22, 10, 'A+', 2, 'medium', 'Planned surgery - IGGMC', 'pending', '2024-03-02'],
+    [19, 8, 'B-', 3, 'high', 'Cardiac surgery - Nagpur NMC', 'fulfilled', '2026-02-21', '2026-02-21'],
+    [21, 9, 'O+', 5, 'critical', 'Major trauma case - AIIMS Nagpur', 'pending', '2026-03-01'],
+    [22, 10, 'A+', 2, 'medium', 'Planned surgery - IGGMC', 'pending', '2026-03-02'],
     
     // Akola District
-    [23, 11, 'AB+', 1, 'low', 'Routine transfusion - Akola', 'pending', '2024-03-03'],
-    [24, 11, 'AB+', 3, 'high', 'Emergency surgery - Akola', 'fulfilled', '2024-03-04', '2024-03-04'],
-    [25, 12, 'B+', 2, 'medium', 'Surgical procedure - Akot', 'pending', '2024-03-05'],
+    [23, 11, 'AB+', 1, 'low', 'Routine transfusion - Akola', 'pending', '2026-03-03'],
+    [24, 11, 'AB+', 3, 'high', 'Emergency surgery - Akola', 'fulfilled', '2026-03-04', '2026-03-04'],
+    [25, 12, 'B+', 2, 'medium', 'Surgical procedure - Akot', 'pending', '2026-03-05'],
     
     // Washim District
-    [26, 13, 'O-', 2, 'critical', 'Emergency delivery - Washim', 'fulfilled', '2024-02-23', '2024-02-23'],
-    [27, 13, 'O-', 1, 'medium', 'Planned surgery - Washim', 'pending', '2024-03-06'],
-    [28, 14, 'A-', 2, 'high', 'Trauma case - Karanja', 'pending', '2024-03-07'],
+    [26, 13, 'O-', 2, 'critical', 'Emergency delivery - Washim', 'fulfilled', '2026-02-23', '2026-02-23'],
+    [27, 13, 'O-', 1, 'medium', 'Planned surgery - Washim', 'pending', '2026-03-06'],
+    [28, 14, 'A-', 2, 'high', 'Trauma case - Karanja', 'pending', '2026-03-07'],
     
     // Amravati District
-    [29, 15, 'A-', 1, 'low', 'Elective procedure - Amravati', 'pending', '2024-03-08'],
-    [30, 16, 'A-', 3, 'critical', 'Major surgery - GMC Amravati', 'pending', '2024-03-09'],
-    [31, 15, 'O+', 2, 'medium', 'Routine transfusion - Amravati', 'pending', '2024-03-10'],
+    [29, 15, 'A-', 1, 'low', 'Elective procedure - Amravati', 'pending', '2026-03-08'],
+    [30, 16, 'A-', 3, 'critical', 'Major surgery - GMC Amravati', 'pending', '2026-03-09'],
+    [31, 15, 'O+', 2, 'medium', 'Routine transfusion - Amravati', 'pending', '2026-03-10'],
     
     // Buldhana District
-    [32, 17, 'B+', 2, 'high', 'Emergency case - Buldhana', 'pending', '2024-03-11'],
-    [33, 17, 'B+', 1, 'low', 'Planned surgery - Buldhana', 'pending', '2024-03-12'],
-    [34, 18, 'AB+', 2, 'medium', 'Surgical procedure - Malkapur', 'pending', '2024-03-13'],
+    [32, 17, 'B+', 2, 'high', 'Emergency case - Buldhana', 'pending', '2026-03-11'],
+    [33, 17, 'B+', 1, 'low', 'Planned surgery - Buldhana', 'pending', '2026-03-12'],
+    [34, 18, 'AB+', 2, 'medium', 'Surgical procedure - Malkapur', 'pending', '2026-03-13'],
     
     // Wardha District
-    [35, 19, 'AB-', 1, 'low', 'Routine procedure - Wardha', 'pending', '2024-03-14'],
-    [36, 19, 'AB-', 3, 'critical', 'Emergency trauma - Wardha', 'fulfilled', '2024-03-15', '2024-03-15'],
-    [37, 20, 'O-', 2, 'high', 'Surgical emergency - Sevagram', 'pending', '2024-03-16']
+    [35, 19, 'AB-', 1, 'low', 'Routine procedure - Wardha', 'pending', '2026-03-14'],
+    [36, 19, 'AB-', 3, 'critical', 'Emergency trauma - Wardha', 'fulfilled', '2026-03-15', '2026-03-15'],
+    [37, 20, 'O-', 2, 'high', 'Surgical emergency - Sevagram', 'pending', '2026-03-16'],
+
+    // Recent 2026 entries
+    [5, 1, 'A+', 2, 'high', 'Recent surgery - Yavatmal', 'pending', '2026-03-28'],
+    [13, 5, 'AB+', 1, 'medium', 'Recent request - Hingoli', 'pending', '2026-03-29'],
+    [19, 8, 'O+', 3, 'critical', 'Recent emergency - Nagpur', 'pending', '2026-03-30'],
+    [26, 13, 'O-', 2, 'high', 'Recent trauma - Washim', 'pending', '2026-03-31'],
+    [35, 19, 'AB-', 1, 'medium', 'Recent procedure - Wardha', 'pending', '2026-04-01']
   ];
 
   requests.forEach(request => {
@@ -287,63 +301,63 @@ const insertDummyData = async (db) => {
   // Insert comprehensive blood inventory - Maharashtra Vidarbha Region
   const inventory = [
     // Yavatmal District Hospitals
-    ['A+', 25, '2024-04-15', 1, 'active'],
-    ['B-', 12, '2024-04-20', 2, 'active'],
-    ['O+', 30, '2024-04-18', 1, 'active'],
-    ['A+', 18, '2024-04-22', 2, 'active'],
-    ['B+', 15, '2024-04-25', 3, 'active'],
-    ['O-', 8, '2024-04-28', 4, 'active'],
+    ['A+', 25, '2026-04-15', 1, 'active'],
+    ['B-', 12, '2026-04-20', 2, 'active'],
+    ['O+', 30, '2026-04-18', 1, 'active'],
+    ['A+', 18, '2026-04-22', 2, 'active'],
+    ['B+', 15, '2026-04-25', 3, 'active'],
+    ['O-', 8, '2026-04-28', 4, 'active'],
     
     // Hingoli District Hospitals
-    ['AB+', 10, '2024-04-20', 5, 'active'],
-    ['A-', 14, '2024-04-24', 6, 'active'],
-    ['O+', 22, '2024-04-26', 7, 'active'],
-    ['B+', 16, '2024-04-28', 5, 'active'],
-    ['AB-', 6, '2024-04-30', 6, 'active'],
-    ['A-', 9, '2024-05-02', 7, 'active'],
+    ['AB+', 10, '2026-04-20', 5, 'active'],
+    ['A-', 14, '2026-04-24', 6, 'active'],
+    ['O+', 22, '2026-04-26', 7, 'active'],
+    ['B+', 16, '2026-04-28', 5, 'active'],
+    ['AB-', 6, '2026-04-30', 6, 'active'],
+    ['A-', 9, '2026-05-02', 7, 'active'],
     
     // Nagpur Division Hospitals
-    ['B-', 20, '2024-04-22', 8, 'active'],
-    ['O+', 35, '2024-04-25', 9, 'active'],
-    ['A+', 28, '2024-04-27', 10, 'active'],
-    ['B-', 11, '2024-04-29', 8, 'active'],
-    ['O+', 40, '2024-05-01', 9, 'active'],
-    ['A+', 32, '2024-05-03', 10, 'active'],
+    ['B-', 20, '2026-04-22', 8, 'active'],
+    ['O+', 35, '2026-04-25', 9, 'active'],
+    ['A+', 28, '2026-04-27', 10, 'active'],
+    ['B-', 11, '2026-04-29', 8, 'active'],
+    ['O+', 40, '2026-05-01', 9, 'active'],
+    ['A+', 32, '2026-05-03', 10, 'active'],
     
     // Akola District Hospitals
-    ['AB+', 12, '2024-04-26', 11, 'active'],
-    ['AB+', 18, '2024-04-28', 11, 'active'],
-    ['B+', 14, '2024-04-30', 12, 'active'],
+    ['AB+', 12, '2026-04-26', 11, 'active'],
+    ['AB+', 18, '2026-04-28', 11, 'active'],
+    ['B+', 14, '2026-04-30', 12, 'active'],
     
     // Washim District Hospitals
-    ['O-', 15, '2024-04-27', 13, 'active'],
-    ['O-', 20, '2024-04-29', 13, 'active'],
-    ['A-', 10, '2024-05-01', 14, 'active'],
+    ['O-', 15, '2026-04-27', 13, 'active'],
+    ['O-', 20, '2026-04-29', 13, 'active'],
+    ['A-', 10, '2026-05-01', 14, 'active'],
     
     // Amravati District Hospitals
-    ['A-', 16, '2024-04-28', 15, 'active'],
-    ['A-', 22, '2024-04-30', 16, 'active'],
-    ['O+', 38, '2024-05-02', 15, 'active'],
+    ['A-', 16, '2026-04-28', 15, 'active'],
+    ['A-', 22, '2026-04-30', 16, 'active'],
+    ['O+', 38, '2026-05-02', 15, 'active'],
     
     // Buldhana District Hospitals
-    ['B+', 19, '2024-04-29', 17, 'active'],
-    ['B+', 24, '2024-05-01', 17, 'active'],
-    ['AB+', 13, '2024-05-03', 18, 'active'],
+    ['B+', 19, '2026-04-29', 17, 'active'],
+    ['B+', 24, '2026-05-01', 17, 'active'],
+    ['AB+', 13, '2026-05-03', 18, 'active'],
     
     // Wardha District Hospitals
-    ['AB-', 7, '2024-04-30', 19, 'active'],
-    ['AB-', 11, '2024-05-02', 19, 'active'],
-    ['O-', 17, '2024-05-04', 20, 'active'],
+    ['AB-', 7, '2026-04-30', 19, 'active'],
+    ['AB-', 11, '2026-05-02', 19, 'active'],
+    ['O-', 17, '2026-05-04', 20, 'active'],
     
     // Additional inventory across all blood types
-    ['A+', 20, '2024-05-05', 1, 'active'],
-    ['A-', 8, '2024-05-06', 5, 'active'],
-    ['B+', 22, '2024-05-07', 8, 'active'],
-    ['B-', 9, '2024-05-08', 11, 'active'],
-    ['AB+', 15, '2024-05-09', 15, 'active'],
-    ['AB-', 5, '2024-05-10', 19, 'active'],
-    ['O+', 45, '2024-05-11', 8, 'active'],
-    ['O-', 12, '2024-05-12', 13, 'active']
+    ['A+', 20, '2026-05-05', 1, 'active'],
+    ['A-', 8, '2026-05-06', 5, 'active'],
+    ['B+', 22, '2026-05-07', 8, 'active'],
+    ['B-', 9, '2026-05-08', 11, 'active'],
+    ['AB+', 15, '2026-05-09', 15, 'active'],
+    ['AB-', 5, '2026-05-10', 19, 'active'],
+    ['O+', 45, '2026-05-11', 8, 'active'],
+    ['O-', 12, '2026-05-12', 13, 'active']
   ];
 
   inventory.forEach(item => {
@@ -353,43 +367,50 @@ const insertDummyData = async (db) => {
   // Insert organ donations - Maharashtra Vidarbha Region
   const organDonations = [
     // Yavatmal District
-    [5, 1, 'Heart', 'completed', '2024-01-10', 'Successful heart donation - Yavatmal'],
+    [5, 1, 'Heart', 'completed', '2026-01-10', 'Successful heart donation - Yavatmal'],
     [7, 2, 'Kidneys', 'pending', null, 'Kidney donation scheduled - Pusad'],
-    [9, 1, 'Corneas', 'completed', '2024-02-01', 'Cornea donation - Yavatmal'],
-    [10, 2, 'Liver', 'completed', '2024-02-10', 'Successful liver donation - Pusad'],
+    [9, 1, 'Corneas', 'completed', '2026-02-01', 'Cornea donation - Yavatmal'],
+    [10, 2, 'Liver', 'completed', '2026-02-10', 'Successful liver donation - Pusad'],
     [11, 3, 'Kidneys', 'pending', null, 'Kidney evaluation - Wani'],
     
     // Hingoli District
     [13, 5, 'Heart', 'pending', null, 'Heart donation evaluation - Hingoli'],
-    [14, 6, 'Corneas', 'completed', '2024-02-15', 'Cornea donation - Kalamnuri'],
-    [15, 7, 'Liver', 'completed', '2024-02-20', 'Liver donation - Basmat'],
+    [14, 6, 'Corneas', 'completed', '2026-02-15', 'Cornea donation - Kalamnuri'],
+    [15, 7, 'Liver', 'completed', '2026-02-20', 'Liver donation - Basmat'],
     [17, 5, 'Kidneys', 'pending', null, 'Kidney donation in process - Hingoli'],
     
     // Nagpur Division
-    [19, 8, 'Heart', 'completed', '2024-01-15', 'Heart transplant - Nagpur NMC'],
-    [21, 9, 'Liver', 'completed', '2024-02-05', 'Liver transplant - AIIMS Nagpur'],
+    [19, 8, 'Heart', 'completed', '2026-01-15', 'Heart transplant - Nagpur NMC'],
+    [21, 9, 'Liver', 'completed', '2026-02-05', 'Liver transplant - AIIMS Nagpur'],
     [22, 10, 'Kidneys', 'pending', null, 'Kidney evaluation - IGGMC'],
     
     // Akola District
-    [24, 11, 'Liver', 'completed', '2024-02-12', 'Liver donation - Akola'],
+    [24, 11, 'Liver', 'completed', '2026-02-12', 'Liver donation - Akola'],
     [25, 12, 'Kidneys', 'pending', null, 'Kidney donation scheduled - Akot'],
     
     // Washim District
-    [26, 13, 'Heart', 'completed', '2024-01-20', 'Heart donation - Washim'],
-    [28, 14, 'Corneas', 'completed', '2024-02-18', 'Cornea donation - Karanja'],
+    [26, 13, 'Heart', 'completed', '2026-01-20', 'Heart donation - Washim'],
+    [28, 14, 'Corneas', 'completed', '2026-02-18', 'Cornea donation - Karanja'],
     
     // Amravati District
-    [29, 15, 'Corneas', 'completed', '2024-02-22', 'Cornea donation - Amravati'],
+    [29, 15, 'Corneas', 'completed', '2026-02-22', 'Cornea donation - Amravati'],
     [30, 16, 'Kidneys', 'pending', null, 'Kidney evaluation - GMC Amravati'],
-    [31, 15, 'Liver', 'completed', '2024-02-25', 'Liver donation - Amravati'],
+    [31, 15, 'Liver', 'completed', '2026-02-25', 'Liver donation - Amravati'],
     
     // Buldhana District
-    [33, 17, 'Liver', 'completed', '2024-02-28', 'Liver donation - Buldhana'],
+    [33, 17, 'Liver', 'completed', '2026-02-28', 'Liver donation - Buldhana'],
     [34, 18, 'Kidneys', 'pending', null, 'Kidney donation scheduled - Malkapur'],
     
     // Wardha District
-    [35, 19, 'Heart', 'completed', '2024-03-01', 'Heart donation - Wardha'],
-    [37, 20, 'Kidneys', 'pending', null, 'Kidney evaluation - Sevagram']
+    [35, 19, 'Heart', 'completed', '2026-03-01', 'Heart donation - Wardha'],
+    [37, 20, 'Kidneys', 'pending', null, 'Kidney evaluation - Sevagram'],
+
+    // Recent 2026 entries
+    [5, 1, 'Corneas', 'pending', null, 'Recent cornea registration - Yavatmal'],
+    [13, 5, 'Kidneys', 'eligible', null, 'Recent kidney evaluation - Hingoli'],
+    [19, 8, 'Heart', 'pending', null, 'Recent heart registration - Nagpur'],
+    [26, 13, 'Liver', 'pending', null, 'Recent liver registration - Washim'],
+    [35, 19, 'Corneas', 'completed', '2026-03-30', 'Recent cornea donation - Wardha']
   ];
 
   organDonations.forEach(donation => {
@@ -399,41 +420,48 @@ const insertDummyData = async (db) => {
   // Insert organ requests - Maharashtra Vidarbha Region
   const organRequests = [
     // Yavatmal District
-    [6, 1, 'Heart', 'critical', 'Heart failure patient - Yavatmal', 'pending', '2024-02-20'],
-    [8, 2, 'Kidneys', 'medium', 'Kidney disease patient - Pusad', 'pending', '2024-02-22'],
-    [12, 3, 'Corneas', 'low', 'Vision restoration - Wani', 'pending', '2024-02-25'],
+    [6, 1, 'Heart', 'critical', 'Heart failure patient - Yavatmal', 'pending', '2026-02-20'],
+    [8, 2, 'Kidneys', 'medium', 'Kidney disease patient - Pusad', 'pending', '2026-02-22'],
+    [12, 3, 'Corneas', 'low', 'Vision restoration - Wani', 'pending', '2026-02-25'],
     
     // Hingoli District
-    [14, 5, 'Liver', 'high', 'Liver cirrhosis treatment - Hingoli', 'fulfilled', '2024-02-18', '2024-02-18'],
-    [16, 6, 'Kidneys', 'medium', 'Renal disease - Kalamnuri', 'pending', '2024-02-26'],
-    [18, 7, 'Corneas', 'low', 'Corneal transplant - Basmat', 'pending', '2024-02-28'],
+    [14, 5, 'Liver', 'high', 'Liver cirrhosis treatment - Hingoli', 'fulfilled', '2026-02-18', '2026-02-18'],
+    [16, 6, 'Kidneys', 'medium', 'Renal disease - Kalamnuri', 'pending', '2026-02-26'],
+    [18, 7, 'Corneas', 'low', 'Corneal transplant - Basmat', 'pending', '2026-02-28'],
     
     // Nagpur Division
-    [20, 8, 'Heart', 'critical', 'Cardiac surgery needed - Nagpur NMC', 'pending', '2024-02-27'],
-    [22, 9, 'Liver', 'high', 'Hepatitis treatment - AIIMS Nagpur', 'fulfilled', '2024-02-21', '2024-02-21'],
-    [23, 10, 'Kidneys', 'critical', 'Renal failure patient - IGGMC', 'pending', '2024-02-28'],
+    [20, 8, 'Heart', 'critical', 'Cardiac surgery needed - Nagpur NMC', 'pending', '2026-02-27'],
+    [22, 9, 'Liver', 'high', 'Hepatitis treatment - AIIMS Nagpur', 'fulfilled', '2026-02-21', '2026-02-21'],
+    [23, 10, 'Kidneys', 'critical', 'Renal failure patient - IGGMC', 'pending', '2026-02-28'],
     
     // Akola District
-    [23, 11, 'Liver', 'medium', 'Liver disease - Akola', 'pending', '2024-03-01'],
-    [25, 12, 'Kidneys', 'high', 'Kidney transplant needed - Akot', 'pending', '2024-03-02'],
+    [23, 11, 'Liver', 'medium', 'Liver disease - Akola', 'pending', '2026-03-01'],
+    [25, 12, 'Kidneys', 'high', 'Kidney transplant needed - Akot', 'pending', '2026-03-02'],
     
     // Washim District
-    [27, 13, 'Heart', 'critical', 'Heart transplant urgent - Washim', 'fulfilled', '2024-02-23', '2024-02-23'],
-    [28, 14, 'Corneas', 'medium', 'Vision restoration - Karanja', 'pending', '2024-03-03'],
+    [27, 13, 'Heart', 'critical', 'Heart transplant urgent - Washim', 'fulfilled', '2026-02-23', '2026-02-23'],
+    [28, 14, 'Corneas', 'medium', 'Vision restoration - Karanja', 'pending', '2026-03-03'],
     
     // Amravati District
-    [29, 15, 'Corneas', 'low', 'Corneal transplant - Amravati', 'pending', '2024-03-04'],
-    [30, 16, 'Kidneys', 'critical', 'Renal failure - GMC Amravati', 'pending', '2024-03-05'],
-    [31, 15, 'Liver', 'high', 'Liver transplant needed - Amravati', 'fulfilled', '2024-03-06', '2024-03-06'],
+    [29, 15, 'Corneas', 'low', 'Corneal transplant - Amravati', 'pending', '2026-03-04'],
+    [30, 16, 'Kidneys', 'critical', 'Renal failure - GMC Amravati', 'pending', '2026-03-05'],
+    [31, 15, 'Liver', 'high', 'Liver transplant needed - Amravati', 'fulfilled', '2026-03-06', '2026-03-06'],
     
     // Buldhana District
-    [32, 17, 'Liver', 'medium', 'Hepatic disease - Buldhana', 'pending', '2024-03-07'],
-    [34, 18, 'Kidneys', 'high', 'Kidney disease - Malkapur', 'pending', '2024-03-08'],
+    [32, 17, 'Liver', 'medium', 'Hepatic disease - Buldhana', 'pending', '2026-03-07'],
+    [34, 18, 'Kidneys', 'high', 'Kidney disease - Malkapur', 'pending', '2026-03-08'],
     
     // Wardha District
-    [35, 19, 'Heart', 'critical', 'Cardiac emergency - Wardha', 'fulfilled', '2024-03-09', '2024-03-09'],
-    [36, 19, 'Kidneys', 'medium', 'Renal disease - Wardha', 'pending', '2024-03-10'],
-    [37, 20, 'Liver', 'high', 'Liver transplant - Sevagram', 'pending', '2024-03-11']
+    [35, 19, 'Heart', 'critical', 'Cardiac emergency - Wardha', 'fulfilled', '2026-03-09', '2026-03-09'],
+    [36, 19, 'Kidneys', 'medium', 'Renal disease - Wardha', 'pending', '2026-03-10'],
+    [37, 20, 'Liver', 'high', 'Liver transplant - Sevagram', 'pending', '2026-03-11'],
+
+    // Recent 2026 entries
+    [6, 1, 'Kidneys', 'high', 'Recent kidney request - Yavatmal', 'pending', '2026-03-28'],
+    [13, 5, 'Corneas', 'medium', 'Recent cornea request - Hingoli', 'pending', '2026-03-29'],
+    [19, 8, 'Liver', 'critical', 'Recent liver request - Nagpur', 'pending', '2026-03-30'],
+    [26, 13, 'Heart', 'critical', 'Recent heart request - Washim', 'pending', '2026-03-31'],
+    [35, 19, 'Kidneys', 'high', 'Recent kidney request - Wardha', 'pending', '2026-04-01']
   ];
 
   organRequests.forEach(request => {
@@ -443,10 +471,10 @@ const insertDummyData = async (db) => {
   // Insert doctor assistance requests (user -> admin -> doctor)
   const doctorRequests = [
     [5, 1, 'blood', 'Need consultation for repeated low hemoglobin reports', 'pending', null, null],
-    [6, 2, 'organ', 'Need guidance about kidney donor eligibility in family', 'assigned', 2, '2024-03-18 10:30:00'],
-    [13, 5, 'general', 'Post donation weakness, need doctor advice', 'assigned', 7, '2024-03-19 14:10:00'],
+    [6, 2, 'organ', 'Need guidance about kidney donor eligibility in family', 'assigned', 2, '2026-03-18 10:30:00'],
+    [13, 5, 'general', 'Post donation weakness, need doctor advice', 'assigned', 7, '2026-03-19 14:10:00'],
     [20, 8, 'blood', 'Requesting urgent review for cross-match issue', 'pending', null, null],
-    [29, 15, 'organ', 'Want transplant follow-up consultation timeline', 'assigned', 23, '2024-03-20 11:45:00']
+    [29, 15, 'organ', 'Want transplant follow-up consultation timeline', 'assigned', 23, '2026-03-20 11:45:00']
   ];
 
   doctorRequests.forEach(req => {

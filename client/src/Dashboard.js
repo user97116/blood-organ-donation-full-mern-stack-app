@@ -648,7 +648,7 @@ function History({ donations, requests, organDonations, organRequests, user }) {
                     <td>{donation.blood_type}</td>
                     <td>{donation.quantity} units</td>
                     <td>{donation.hospital_name || 'N/A'}</td>
-                    <td className={`status ${donation.status}`}>{donation.status}</td>
+                    <td><span className={`status ${donation.status}`}>{donation.status}</span></td>
                     {isAdmin && (
                       <td>
                         <select 
@@ -676,9 +676,11 @@ function History({ donations, requests, organDonations, organRequests, user }) {
         <div className="history-filters">
           <select value={filters.odType} onChange={e => setFilter('odType', e.target.value)}>
             <option value="">All Organs</option>
-            <option value="heart">Heart</option>
-            <option value="kidney">Kidney</option>
-            <option value="eye">Eye</option>
+            <option value="Heart">Heart</option>
+            <option value="Kidneys">Kidneys</option>
+            <option value="Kidney">Kidney</option>
+            <option value="Corneas">Corneas</option>
+            <option value="Liver">Liver</option>
           </select>
           <select value={filters.odStatus} onChange={e => setFilter('odStatus', e.target.value)}>
             <option value="">All Statuses</option>
@@ -706,7 +708,7 @@ function History({ donations, requests, organDonations, organRequests, user }) {
                     <td>{donation.donation_date ? new Date(donation.donation_date).toLocaleDateString() : 'Pending'}</td>
                     <td>{donation.organ_type}</td>
                     <td>{donation.hospital_name || 'N/A'}</td>
-                    <td className={`status ${donation.status}`}>{donation.status}</td>
+                    <td><span className={`status ${donation.status}`}>{donation.status}</span></td>
                     {isAdmin && (
                       <td>
                         <select 
@@ -770,8 +772,8 @@ function History({ donations, requests, organDonations, organRequests, user }) {
                     <td>{new Date(request.requested_date).toLocaleDateString()}</td>
                     <td>{request.blood_type}</td>
                     <td>{request.quantity} units</td>
-                    <td className={`urgency ${request.urgency}`}>{request.urgency}</td>
-                    <td className={`status ${request.status}`}>{request.status}</td>
+                    <td><span className={`urgency ${request.urgency}`}>{request.urgency}</span></td>
+                    <td><span className={`status ${request.status}`}>{request.status}</span></td>
                     {isAdmin && (
                       <td>
                         <select 
@@ -799,9 +801,11 @@ function History({ donations, requests, organDonations, organRequests, user }) {
         <div className="history-filters">
           <select value={filters.orType} onChange={e => setFilter('orType', e.target.value)}>
             <option value="">All Organs</option>
-            <option value="heart">Heart</option>
-            <option value="kidney">Kidney</option>
-            <option value="eye">Eye</option>
+            <option value="Heart">Heart</option>
+            <option value="Kidneys">Kidneys</option>
+            <option value="Kidney">Kidney</option>
+            <option value="Corneas">Corneas</option>
+            <option value="Liver">Liver</option>
           </select>
           <select value={filters.orUrgency} onChange={e => setFilter('orUrgency', e.target.value)}>
             <option value="">All Urgencies</option>
@@ -834,8 +838,8 @@ function History({ donations, requests, organDonations, organRequests, user }) {
                   <tr key={request.id}>
                     <td>{new Date(request.requested_date).toLocaleDateString()}</td>
                     <td>{request.organ_type}</td>
-                    <td className={`urgency ${request.urgency}`}>{request.urgency}</td>
-                    <td className={`status ${request.status}`}>{request.status}</td>
+                    <td><span className={`urgency ${request.urgency}`}>{request.urgency}</span></td>
+                    <td><span className={`status ${request.status}`}>{request.status}</span></td>
                     {isAdmin && (
                       <td>
                         <select 

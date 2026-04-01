@@ -11,11 +11,132 @@
 📊 Database initialized with dummy data
 🔄 Inserting dummy data...
 ✅ Comprehensive dummy data inserted successfully
-📊 Data includes: 8 hospitals, 21 users, 10 doctors, 15 blood donations, 10 blood requests, 24 inventory items, 8 organ donations, 8 organ requests
-[32m[nodemon] restarting child process[39m
-[32m[nodemon] starting `node server.js`[39m
-🚀 Server running on port 5000
-📊 Database initialized with dummy data
-🔄 Inserting dummy data...
-✅ Comprehensive dummy data inserted successfully
-📊 Data includes: 8 hospitals, 21 users, 10 doctors, 15 blood donations, 10 blood requests, 24 inventory items, 8 organ donations, 8 organ requests
+📊 Maharashtra Vidarbha Region Data:
+   - 20 hospitals (Yavatmal, Hingoli, Nagpur, Akola, Washim, Amravati, Buldhana, Wardha)
+   - 40 users (4 admins + 36 donors)
+   - 29 doctors across all hospitals
+   - 33 blood donations
+   - 27 blood requests
+   - 41 blood inventory items
+   - 23 organ donations
+   - 21 organ requests
+   - 5 doctor assistance requests
+Authenticated user: {
+  userId: 38,
+  role: 'donor',
+  email: 'amardahake@proton.me',
+  iat: 1775011681
+}
+Authenticated user: {
+  userId: 38,
+  role: 'donor',
+  email: 'amardahake@proton.me',
+  iat: 1775011681
+}
+Authenticated user: {
+  userId: 38,
+  role: 'donor',
+  email: 'amardahake@proton.me',
+  iat: 1775011681
+}
+Authenticated user: {
+  userId: 38,
+  role: 'donor',
+  email: 'amardahake@proton.me',
+  iat: 1775011681
+}
+Authenticated user: {
+  userId: 38,
+  role: 'donor',
+  email: 'amardahake@proton.me',
+  iat: 1775011681
+}
+Authenticated user: {
+  userId: 38,
+  role: 'donor',
+  email: 'amardahake@proton.me',
+  iat: 1775011681
+}
+Authenticated user: {
+  userId: 38,
+  role: 'donor',
+  email: 'amardahake@proton.me',
+  iat: 1775011681
+}
+Authenticated user: {
+  userId: 38,
+  role: 'donor',
+  email: 'amardahake@proton.me',
+  iat: 1775011681
+}
+Authenticated user: {
+  userId: 38,
+  role: 'donor',
+  email: 'amardahake@proton.me',
+  iat: 1775011681
+}
+Authenticated user: {
+  userId: 38,
+  role: 'donor',
+  email: 'amardahake@proton.me',
+  iat: 1775011681
+}
+Authenticated user: {
+  userId: 38,
+  role: 'donor',
+  email: 'amardahake@proton.me',
+  iat: 1775011681
+}
+Authenticated user: {
+  userId: 38,
+  role: 'donor',
+  email: 'amardahake@proton.me',
+  iat: 1775011681
+}
+Authenticated user: {
+  userId: 38,
+  role: 'donor',
+  email: 'amardahake@proton.me',
+  iat: 1775011681
+}
+Authenticated user: {
+  userId: 38,
+  role: 'donor',
+  email: 'amardahake@proton.me',
+  iat: 1775011681
+}
+Authenticated user: {
+  userId: 38,
+  role: 'donor',
+  email: 'amardahake@proton.me',
+  iat: 1775011681
+}
+Authenticated user: {
+  userId: 38,
+  role: 'donor',
+  email: 'amardahake@proton.me',
+  iat: 1775011681
+}
+Authenticated user: {
+  userId: 38,
+  role: 'donor',
+  email: 'amardahake@proton.me',
+  iat: 1775011681
+}
+Authenticated user: { userId: 39, role: 'admin', email: 'asas@C.C', iat: 1775011862 }
+Authenticated user: { userId: 39, role: 'admin', email: 'asas@C.C', iat: 1775011862 }
+Authenticated user: { userId: 39, role: 'admin', email: 'asas@C.C', iat: 1775011862 }
+Authenticated user: { userId: 39, role: 'admin', email: 'asas@C.C', iat: 1775011862 }
+Authenticated user: { userId: 39, role: 'admin', email: 'asas@C.C', iat: 1775011862 }
+Authenticated user: { userId: 39, role: 'admin', email: 'asas@C.C', iat: 1775011862 }
+Authenticated user: { userId: 39, role: 'admin', email: 'asas@C.C', iat: 1775011862 }
+Authenticated user: { userId: 39, role: 'admin', email: 'asas@C.C', iat: 1775011862 }
+Authenticated user: { userId: 39, role: 'admin', email: 'asas@C.C', iat: 1775011862 }
+Authenticated user: { userId: 39, role: 'admin', email: 'asas@C.C', iat: 1775011862 }
+Authenticated user: { userId: 39, role: 'admin', email: 'asas@C.C', iat: 1775011862 }
+Authenticated user: { userId: 39, role: 'admin', email: 'asas@C.C', iat: 1775011862 }
+Authenticated user: { userId: 39, role: 'admin', email: 'asas@C.C', iat: 1775011862 }
+Authenticated user: { userId: 39, role: 'admin', email: 'asas@C.C', iat: 1775011862 }
+Authenticated user: { userId: 39, role: 'admin', email: 'asas@C.C', iat: 1775011862 }
+Authenticated user: { userId: 39, role: 'admin', email: 'asas@C.C', iat: 1775011862 }
+Authenticated user: { userId: 39, role: 'admin', email: 'asas@C.C', iat: 1775011862 }

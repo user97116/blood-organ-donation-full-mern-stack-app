@@ -23,37 +23,42 @@ function AdminPanel() {
   const fetchAdminData = async () => {
     setLoading(true);
     try {
-      console.log('Fetching admin data...');
-      const [statsRes, usersRes, hospitalsRes, doctorsRes, donationsRes, requestsRes, organDonationsRes, organRequestsRes, inventoryRes] = await Promise.all([
-        axios.get(`${API_URL}/dashboard/stats`),
-        axios.get(`${API_URL}/users`),
-        axios.get(`${API_URL}/hospitals`),
-        axios.get(`${API_URL}/doctors`),
-        axios.get(`${API_URL}/blood-donations`),
-        axios.get(`${API_URL}/blood-requests`),
-        axios.get(`${API_URL}/organ-donations`),
-        axios.get(`${API_URL}/organ-requests`),
-        axios.get(`${API_URL}/blood-inventory`)
+      const token = localStorage.getItem('token');
+      const headers = { Authorization: `Bearer ${token}` };
+
+      const [statsRes, usersRes, hospitalsRes, doctorsRes, donationsRes, requestsRes, inventoryRes] = await Promise.all([
+        axios.get(`${API_URL}/dashboard/stats`, { headers }),
+        axios.get(`${API_URL}/users`, { headers }),
+        axios.get(`${API_URL}/hospitals`, { headers }),
+        axios.get(`${API_URL}/doctors`, { headers }),
+        axios.get(`${API_URL}/blood-donations`, { headers }),
+        axios.get(`${API_URL}/blood-requests`, { headers }),
+        axios.get(`${API_URL}/blood-inventory`, { headers })
       ]);
-      
-      console.log('Hospitals:', hospitalsRes.data.length);
-      console.log('Doctors:', doctorsRes.data.length);
-      console.log('Users:', usersRes.data.length);
-      
+
       setStats(statsRes.data);
       setUsers(usersRes.data);
       setHospitals(hospitalsRes.data);
       setDoctors(doctorsRes.data);
       setDonations(donationsRes.data);
       setRequests(requestsRes.data);
-      setOrganDonations(organDonationsRes.data);
-      setOrganRequests(organRequestsRes.data);
       setInventory(inventoryRes.data);
-      
-      console.log('Data loaded successfully');
+
+      // Fetch organ data separately so failures don't block main data
+      try {
+        const [organDonRes, organReqRes] = await Promise.all([
+          axios.get(`${API_URL}/organ-donations`, { headers }),
+          axios.get(`${API_URL}/organ-requests`, { headers })
+        ]);
+        setOrganDonations(organDonRes.data);
+        setOrganRequests(organReqRes.data);
+      } catch (organErr) {
+        console.error('Error fetching organ data:', organErr.response?.data || organErr.message);
+        setOrganDonations([]);
+        setOrganRequests([]);
+      }
     } catch (error) {
       console.error('Error fetching admin data:', error);
-      console.error('Error details:', error.response?.data || error.message);
       alert(`Error loading admin data: ${error.response?.data?.error || error.message}`);
     } finally {
       setLoading(false);
@@ -136,10 +141,10 @@ function AdminPanel() {
             {activeTab === 'hospitals' && <HospitalManagement hospitals={hospitals} onUpdate={fetchAdminData} />}
             {activeTab === 'doctors' && <DoctorManagement doctors={doctors} hospitals={hospitals} onUpdate={fetchAdminData} />}
             {activeTab === 'inventory' && <InventoryManagement inventory={inventory} />}
-            {activeTab === 'donations' && <DonationManagement donations={donations} />}
-            {activeTab === 'requests' && <RequestManagement requests={requests} />}
-            {activeTab === 'organ-donations' && <OrganDonationManagement organDonations={organDonations} />}
-            {activeTab === 'organ-requests' && <OrganRequestManagement organRequests={organRequests} />}
+            {activeTab === 'donations' && <DonationManagement donations={donations} onUpdate={fetchAdminData} />}
+            {activeTab === 'requests' && <RequestManagement requests={requests} onUpdate={fetchAdminData} />}
+            {activeTab === 'organ-donations' && <OrganDonationManagement organDonations={organDonations} onUpdate={fetchAdminData} />}
+            {activeTab === 'organ-requests' && <OrganRequestManagement organRequests={organRequests} onUpdate={fetchAdminData} />}
           </>
         )}
       </div>
@@ -647,26 +652,51 @@ function DoctorManagement({ doctors, hospitals, onUpdate }) {
 }
 
 function InventoryManagement({ inventory }) {
+  const bloodTypeColors = {
+    'A+': '#e74c3c', 'A-': '#c0392b',
+    'B+': '#e67e22', 'B-': '#d35400',
+    'AB+': '#8e44ad', 'AB-': '#6c3483',
+    'O+': '#27ae60', 'O-': '#1e8449'
+  };
+
+  const totalUnits = inventory.reduce((sum, i) => sum + (i.total_quantity || 0), 0);
+
   return (
     <div className="inventory-management">
-      <h2>Blood Inventory</h2>
-      <div className="inventory-grid">
-        {inventory.map((item, index) => (
-          <div key={index} className="inventory-card">
-            <h3>{item.blood_type}</h3>
-            <div className="inventory-details">
-              <p><strong>Total Units:</strong> {item.total_quantity}</p>
-              <p><strong>Donations:</strong> {item.units}</p>
-              <p><strong>Earliest Expiry:</strong> {new Date(item.earliest_expiry).toLocaleDateString()}</p>
+      <div className="section-header">
+        <h2>Blood Inventory</h2>
+        <span className="inventory-total-badge">{totalUnits} total units</span>
+      </div>
+      <div className="inventory-grid-admin">
+        {inventory.map((item, index) => {
+          const qty = item.total_quantity || 0;
+          const level = qty === 0 ? 'empty' : qty < 10 ? 'critical' : qty < 20 ? 'low' : 'good';
+          const levelLabels = { empty: 'Out of Stock', critical: 'Critical', low: 'Low Stock', good: 'Available' };
+          const color = bloodTypeColors[item.blood_type] || '#c0392b';
+          const pct = Math.min(100, Math.round((qty / 50) * 100));
+          return (
+            <div key={index} className={`inv-card inv-card--${level}`}>
+              <div className="inv-card__type" style={{ color }}>{item.blood_type}</div>
+              <div className="inv-card__qty">{qty} <span>units</span></div>
+              <div className="inv-card__bar-wrap">
+                <div className="inv-card__bar" style={{ width: `${pct}%`, background: color }} />
+              </div>
+              <div className="inv-card__meta">
+                <span className={`inv-card__level inv-card__level--${level}`}>{levelLabels[level]}</span>
+                <span className="inv-card__expiry">
+                  Exp: {item.earliest_expiry ? new Date(item.earliest_expiry).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}
+                </span>
+              </div>
+              <div className="inv-card__donations">{item.units} donation{item.units !== 1 ? 's' : ''}</div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
 }
 
-function DonationManagement({ donations }) {
+function DonationManagement({ donations, onUpdate }) {
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
 
@@ -678,7 +708,7 @@ function DonationManagement({ donations }) {
   const updateDonationStatus = async (id, status) => {
     try {
       await axios.put(`${API_URL}/blood-donations/${id}`, { status });
-      window.location.reload();
+      onUpdate();
     } catch (error) {
       alert('Error updating status');
     }
@@ -688,7 +718,7 @@ function DonationManagement({ donations }) {
     if (window.confirm('Are you sure you want to delete this donation?')) {
       try {
         await axios.delete(`${API_URL}/blood-donations/${id}`);
-        window.location.reload();
+        onUpdate();
       } catch (error) {
         alert('Error deleting donation');
       }
@@ -753,7 +783,7 @@ function DonationManagement({ donations }) {
   );
 }
 
-function RequestManagement({ requests }) {
+function RequestManagement({ requests, onUpdate }) {
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [urgencyFilter, setUrgencyFilter] = useState('');
@@ -767,7 +797,7 @@ function RequestManagement({ requests }) {
   const updateRequestStatus = async (id, status) => {
     try {
       await axios.put(`${API_URL}/blood-requests/${id}`, { status });
-      window.location.reload();
+      onUpdate();
     } catch (error) {
       alert('Error updating status');
     }
@@ -777,7 +807,7 @@ function RequestManagement({ requests }) {
     if (window.confirm('Are you sure you want to delete this request?')) {
       try {
         await axios.delete(`${API_URL}/blood-requests/${id}`);
-        window.location.reload();
+        onUpdate();
       } catch (error) {
         alert('Error deleting request');
       }
@@ -850,7 +880,7 @@ function RequestManagement({ requests }) {
   );
 }
 
-function OrganDonationManagement({ organDonations }) {
+function OrganDonationManagement({ organDonations, onUpdate }) {
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
 
@@ -862,7 +892,7 @@ function OrganDonationManagement({ organDonations }) {
   const updateOrganDonationStatus = async (id, status) => {
     try {
       await axios.put(`${API_URL}/organ-donations/${id}`, { status });
-      window.location.reload();
+      onUpdate();
     } catch (error) {
       alert('Error updating status');
     }
@@ -872,7 +902,7 @@ function OrganDonationManagement({ organDonations }) {
     if (window.confirm('Are you sure you want to delete this organ donation?')) {
       try {
         await axios.delete(`${API_URL}/organ-donations/${id}`);
-        window.location.reload();
+        onUpdate();
       } catch (error) {
         alert('Error deleting organ donation');
       }
@@ -885,9 +915,11 @@ function OrganDonationManagement({ organDonations }) {
       <div className="admin-filters">
         <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
           <option value="">All Organs</option>
-          <option value="heart">Heart</option>
-          <option value="kidney">Kidney</option>
-          <option value="eye">Eye</option>
+          <option value="Heart">Heart</option>
+          <option value="Kidneys">Kidneys</option>
+          <option value="Kidney">Kidney</option>
+          <option value="Corneas">Corneas</option>
+          <option value="Liver">Liver</option>
         </select>
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
           <option value="">All Statuses</option>
@@ -940,7 +972,7 @@ function OrganDonationManagement({ organDonations }) {
   );
 }
 
-function OrganRequestManagement({ organRequests }) {
+function OrganRequestManagement({ organRequests, onUpdate }) {
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [urgencyFilter, setUrgencyFilter] = useState('');
@@ -954,7 +986,7 @@ function OrganRequestManagement({ organRequests }) {
   const updateOrganRequestStatus = async (id, status) => {
     try {
       await axios.put(`${API_URL}/organ-requests/${id}`, { status });
-      window.location.reload();
+      onUpdate();
     } catch (error) {
       alert('Error updating status');
     }
@@ -964,7 +996,7 @@ function OrganRequestManagement({ organRequests }) {
     if (window.confirm('Are you sure you want to delete this organ request?')) {
       try {
         await axios.delete(`${API_URL}/organ-requests/${id}`);
-        window.location.reload();
+        onUpdate();
       } catch (error) {
         alert('Error deleting organ request');
       }
@@ -977,9 +1009,11 @@ function OrganRequestManagement({ organRequests }) {
       <div className="admin-filters">
         <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
           <option value="">All Organs</option>
-          <option value="heart">Heart</option>
-          <option value="kidney">Kidney</option>
-          <option value="eye">Eye</option>
+          <option value="Heart">Heart</option>
+          <option value="Kidneys">Kidneys</option>
+          <option value="Kidney">Kidney</option>
+          <option value="Corneas">Corneas</option>
+          <option value="Liver">Liver</option>
         </select>
         <select value={urgencyFilter} onChange={e => setUrgencyFilter(e.target.value)}>
           <option value="">All Urgencies</option>

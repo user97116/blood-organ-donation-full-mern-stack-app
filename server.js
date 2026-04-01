@@ -418,16 +418,27 @@ app.delete('/api/doctors/:id', authenticateToken, (req, res) => {
 app.get('/api/dashboard/stats', authenticateToken, (req, res) => {
   const stats = {};
   const userId = req.user.userId;
-  
+  const isAdmin = req.user.role === 'admin';
+
   db.get('SELECT COUNT(*) as count FROM users WHERE role = "donor"', (err, row) => {
     stats.totalDonors = row ? row.count : 0;
-    
-    db.get('SELECT COUNT(*) as count FROM blood_donations WHERE donor_id = ?', [userId], (err, row) => {
+
+    const donationsQuery = isAdmin
+      ? 'SELECT COUNT(*) as count FROM blood_donations'
+      : 'SELECT COUNT(*) as count FROM blood_donations WHERE donor_id = ?';
+    const donationsParams = isAdmin ? [] : [userId];
+
+    db.get(donationsQuery, donationsParams, (err, row) => {
       stats.totalDonations = row ? row.count : 0;
-      
-      db.get('SELECT COUNT(*) as count FROM blood_requests WHERE requester_id = ? AND status = "pending"', [userId], (err, row) => {
+
+      const requestsQuery = isAdmin
+        ? 'SELECT COUNT(*) as count FROM blood_requests WHERE status = "pending"'
+        : 'SELECT COUNT(*) as count FROM blood_requests WHERE requester_id = ? AND status = "pending"';
+      const requestsParams = isAdmin ? [] : [userId];
+
+      db.get(requestsQuery, requestsParams, (err, row) => {
         stats.pendingRequests = row ? row.count : 0;
-        
+
         db.get('SELECT COUNT(*) as count FROM hospitals', (err, row) => {
           stats.totalHospitals = row ? row.count : 0;
           res.json(stats);
